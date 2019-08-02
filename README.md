@@ -1,2 +1,2 @@
-# iptv_pycommon
-Common files for panel and website
+# pyfastotv
+Common files for fastocloud iptv panel and fastotv website
