@@ -5,7 +5,8 @@ from wtforms.validators import InputRequired, Length, NumberRange
 from wtforms.fields import StringField, SubmitField, SelectField, IntegerField, FormField, BooleanField, FloatField
 
 import app.common.constants as constants
-from app.common.stream.entry import IStream, HardwareStream, RelayStream, EncodeStream, TimeshiftRecorderStream, \
+from app.common.stream.entry import IStream, HardwareStream, ProxyStream, RelayStream, EncodeStream, \
+    TimeshiftRecorderStream, \
     CatchupStream, TimeshiftPlayerStream, TestLifeStream, VodRelayStream, VodEncodeStream, CodRelayStream, \
     CodEncodeStream, StreamLogLevel
 from app.common.common_forms import InputUrlsForm, OutputUrlsForm, SizeForm, LogoForm, RationalForm
@@ -43,7 +44,11 @@ class IStreamForm(FlaskForm):
 
 
 class ProxyStreamForm(IStreamForm):
-    pass
+    def make_entry(self):
+        return self.update_entry(ProxyStream())
+
+    def update_entry(self, entry: ProxyStream):
+        return super(ProxyStreamForm, self).update_entry(entry)
 
 
 class HardwareStreamForm(IStreamForm):
