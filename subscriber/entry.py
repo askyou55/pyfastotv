@@ -64,7 +64,7 @@ class Subscriber(Document):
 
     meta = {'allow_inheritance': True, 'collection': 'subscribers', 'auto_create_index': False}
 
-    email = StringField(max_length=30, required=True)
+    email = StringField(max_length=64, required=True)
     password = StringField(min_length=SUBSCRIBER_HASH_LENGHT, max_length=SUBSCRIBER_HASH_LENGHT, required=True)
     created_date = DateTimeField(default=datetime.now)
     status = IntField(default=Status.NOT_ACTIVE)
