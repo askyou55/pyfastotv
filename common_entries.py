@@ -19,9 +19,26 @@ class Url(EmbeddedDocument):
         return current_value
 
 
+class HttpProxy(EmbeddedDocument):
+    INVALID_URL = str()
+    DEFAULT_USER = str()
+    DEFAULT_PASSWORD = str()
+
+    url = StringField(default=INVALID_URL, required=True)
+    user = StringField(default=DEFAULT_USER, required=False)
+    password = StringField(default=DEFAULT_PASSWORD, required=False)
+
+    def is_valid(self):
+        return self.url != HttpProxy.INVALID_URL
+
+    def to_dict(self) -> dict:
+        return {'url': self.url}
+
+
 class InputUrl(Url):
     user_agent = IntField(default=constants.UserAgent.GSTREAMER, required=True)
     stream_link = BooleanField(default=False, required=True)
+    proxy = EmbeddedDocumentField(HttpProxy)
 
 
 class OutputUrl(Url):

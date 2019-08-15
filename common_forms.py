@@ -4,7 +4,8 @@ from wtforms.fields import StringField, FieldList, IntegerField, FormField, Floa
 from wtforms.validators import InputRequired, Length, NumberRange
 
 import app.common.constants as constants
-from app.common.common_entries import Rational, Size, Logo, InputUrls, InputUrl, OutputUrls, OutputUrl, HostAndPort
+from app.common.common_entries import Rational, Size, Logo, InputUrls, InputUrl, OutputUrls, OutputUrl, HostAndPort, \
+    HttpProxy
 
 
 class UrlForm(Form):
@@ -15,6 +16,20 @@ class UrlForm(Form):
                                   Length(min=constants.MIN_URL_LENGTH, max=constants.MAX_URL_LENGTH)])
 
 
+class HttpProxyForm(Form):
+    url = StringField(lazy_gettext(u'Url:'), validators=[])
+    user = StringField(lazy_gettext(u'User:'), validators=[])
+    password = StringField(lazy_gettext(u'Password:'), validators=[])
+
+    def get_data(self) -> HttpProxy:
+        proxy = HttpProxy()
+        proxy_data = self.data
+        proxy.path = proxy_data['url']
+        proxy.x = proxy_data['user']
+        proxy.y = proxy_data['password']
+        return proxy
+
+
 class InputUrlForm(UrlForm):
     AVAILABLE_USER_AGENTS = [(constants.UserAgent.GSTREAMER, 'GStreamer'), (constants.UserAgent.VLC, 'VLC'),
                              (constants.UserAgent.FFMPEG, 'FFmpeg'), (constants.UserAgent.WINK, 'WINK'), ]
@@ -22,6 +37,7 @@ class InputUrlForm(UrlForm):
     user_agent = SelectField(lazy_gettext(u'User agent:'), validators=[InputRequired()], choices=AVAILABLE_USER_AGENTS,
                              coerce=constants.UserAgent.coerce)
     stream_link = BooleanField(lazy_gettext(u'SteamLink:'), validators=[])
+    proxy = FormField(HttpProxyForm, lazy_gettext(u'Http proxy:'), validators=[])
 
 
 class InputUrlsForm(Form):
@@ -30,7 +46,8 @@ class InputUrlsForm(Form):
     def get_data(self) -> InputUrls:
         urls = InputUrls()
         for url in self.data['urls']:
-            urls.urls.append(InputUrl(url['id'], url['uri'], url['user_agent'], url['stream_link']))
+            input = InputUrl(url['id'], url['uri'], url['user_agent'], url['stream_link'], url['proxy'])
+            urls.urls.append(input)
 
         return urls
 
