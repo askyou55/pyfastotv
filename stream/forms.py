@@ -9,7 +9,7 @@ from app.common.stream.entry import IStream, HardwareStream, ProxyStream, RelayS
     TimeshiftRecorderStream, \
     CatchupStream, TimeshiftPlayerStream, TestLifeStream, VodRelayStream, VodEncodeStream, CodRelayStream, \
     CodEncodeStream, StreamLogLevel
-from app.common.common_forms import InputUrlsForm, OutputUrlsForm, SizeForm, LogoForm, RationalForm
+from app.common.common_forms import InputUrlsForm, OutputUrlsForm, SizeForm, LogoForm, RationalForm, TagListField
 
 
 class IStreamForm(FlaskForm):
@@ -24,6 +24,7 @@ class IStreamForm(FlaskForm):
                            validators=[InputRequired(),
                                        Length(min=constants.MIN_URL_LENGTH, max=constants.MAX_URL_LENGTH)])
     group_title = StringField(lazy_gettext(u'Group:'), validators=[])
+    tags = TagListField(lazy_gettext(u'Tags:'))
     price = FloatField(lazy_gettext(u'Price:'),
                        validators=[InputRequired(), NumberRange(constants.MIN_PRICE, constants.MAX_PRICE)])
     output = FormField(OutputUrlsForm, lazy_gettext(u'Output:'))
@@ -38,6 +39,7 @@ class IStreamForm(FlaskForm):
         entry.tvg_name = self.tvg_name.data
         entry.tvg_logo = self.tvg_logo.data
         entry.group_title = self.group_title.data
+        entry.tags = self.tags.data
         entry.price = self.price.data
         entry.output = self.output.get_data()
         return entry

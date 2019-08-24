@@ -1,6 +1,7 @@
 from enum import IntEnum
 
-from mongoengine import StringField, IntField, EmbeddedDocumentField, Document, DateTimeField, BooleanField, FloatField
+from mongoengine import StringField, IntField, EmbeddedDocumentField, Document, DateTimeField, BooleanField, FloatField, \
+    ListField
 from datetime import datetime
 from urllib.parse import urlparse
 import os
@@ -158,6 +159,8 @@ class IStream(Document):
     group_title = StringField(default=constants.DEFAULT_STREAM_GROUP_TITLE,
                               max_length=constants.MAX_STREAM_GROUP_TITLE_LENGTH,
                               min_length=constants.MIN_STREAM_GROUP_TITLE_LENGTH, required=True)
+    tags = ListField(StringField(max_length=constants.MAX_STREAM_GROUP_TITLE_LENGTH,
+                                 min_length=constants.MIN_STREAM_GROUP_TITLE_LENGTH), default=[])
     price = FloatField(default=0.0, min_value=constants.MIN_PRICE, max_value=constants.MAX_PRICE, required=True)
     created_date = DateTimeField(default=datetime.now)  # for inner use
     output = EmbeddedDocumentField(OutputUrls, default=OutputUrls())  #
