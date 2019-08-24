@@ -1,7 +1,8 @@
 from wtforms import Form
 from flask_babel import lazy_gettext
-from wtforms.fields import StringField, FieldList, IntegerField, FormField, FloatField, SelectField, BooleanField
+from wtforms.fields import StringField, FieldList, IntegerField, FormField, FloatField, SelectField, BooleanField, Field
 from wtforms.validators import InputRequired, Length, NumberRange
+from wtforms.widgets import TextInput
 
 import app.common.constants as constants
 from app.common.common_entries import Rational, Size, Logo, InputUrls, InputUrl, OutputUrls, OutputUrl, HostAndPort, \
@@ -121,3 +122,20 @@ class HostAndPortForm(Form):
         host.host = host_data['host']
         host.port = host_data['port']
         return host
+
+
+class TagListField(Field):
+    widget = TextInput()
+
+    def _value(self):
+        """values on load"""
+        if self.data:
+            return u', '.join(self.data)
+        else:
+            return u''
+
+    def process_formdata(self, valuelist):
+        if valuelist:
+            self.data = [x.strip() for x in valuelist[0].split(',')]
+        else:
+            self.data = []
