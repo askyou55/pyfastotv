@@ -94,27 +94,17 @@ class Subscriber(Document):
         self.streams.append(stream)
         self.save()
 
-    def to_service(self, serv: ServiceSettings) -> dict:
-        if not serv:
-            return {}
-
-        devices = []
-        for dev in self.devices:
-            devices.append(dev.to_service())
-
+    def get_streams(self) -> list:
         streams = []
-        for stream in self.streams:
-            founded_stream = serv.find_stream_settings_by_id(stream.id)
-            if founded_stream:
-                channels = founded_stream.to_channel_info()
-                for ch in channels:
-                    streams.append(ch.to_dict())
+        for serv in self.servers:
+            for stream in self.streams:
+                founded_stream = serv.find_stream_settings_by_id(stream.id)
+                if founded_stream:
+                    channels = founded_stream.to_channel_info()
+                    for ch in channels:
+                        streams.append(ch.to_dict())
 
-        conf = {
-            Subscriber.ID_FIELD: str(self.id), Subscriber.EMAIL_FIELD: self.email,
-            Subscriber.PASSWORD_FIELD: self.password, Subscriber.STATUS_FIELD: self.status,
-            Subscriber.DEVICES_FIELD: devices, Subscriber.STREAMS_FIELD: streams}
-        return conf
+        return streams
 
     @staticmethod
     def make_md5_hash_from_password(password: str) -> str:
