@@ -57,10 +57,6 @@ class ServiceSettings(Document):
     DEFAULT_SERVICE_VODS_PORT = 7000
     DEFAULT_SERVICE_CODS_HOST = 'localhost'
     DEFAULT_SERVICE_CODS_PORT = 6000
-    DEFAULT_SERVICE_SUBSCRIBERS_HOST = 'localhost'
-    DEFAULT_SERVICE_SUBSCRIBERS_PORT = 5000
-    DEFAULT_SERVICE_BANDWIDTH_HOST = 'localhost'
-    DEFAULT_SERVICE_BANDWIDTH_PORT = 4000
 
     meta = {'collection': 'services', 'auto_create_index': False}
 
@@ -77,10 +73,6 @@ class ServiceSettings(Document):
                                                                        port=DEFAULT_SERVICE_VODS_PORT))
     cods_host = EmbeddedDocumentField(HostAndPort, default=HostAndPort(host=DEFAULT_SERVICE_CODS_HOST,
                                                                        port=DEFAULT_SERVICE_CODS_PORT))
-    subscribers_host = EmbeddedDocumentField(HostAndPort, default=HostAndPort(host=DEFAULT_SERVICE_SUBSCRIBERS_HOST,
-                                                                              port=DEFAULT_SERVICE_SUBSCRIBERS_PORT))
-    bandwidth_host = EmbeddedDocumentField(HostAndPort, default=HostAndPort(host=DEFAULT_SERVICE_BANDWIDTH_HOST,
-                                                                            port=DEFAULT_SERVICE_BANDWIDTH_PORT))
 
     feedback_directory = StringField(default=DEFAULT_FEEDBACK_DIR_PATH)
     timeshifts_directory = StringField(default=DEFAULT_TIMESHIFTS_DIR_PATH)
