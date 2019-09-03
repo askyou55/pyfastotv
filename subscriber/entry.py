@@ -90,6 +90,12 @@ class Subscriber(Document):
                 break
         self.save()
 
+    def find_device(self, sid: str):
+        for device in self.devices:
+            if str(device.id) == sid:
+                return device
+        return None
+
     def add_stream(self, stream: IStream):
         self.streams.append(stream)
         self.save()
