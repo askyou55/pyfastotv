@@ -55,6 +55,17 @@ class SettingsForm(FlaskForm):
 
 
 class MessageForm(FlaskForm):
+    AVAILABLE_MESSAGE_TYPES = [(constants.MessageType.TEXT, 'Text'), (constants.MessageType.HYPERLINK, 'HYPERLINK')]
+
     message = StringField(lazy_gettext(u'Message:'), validators=[InputRequired(), Length(max=512)])
+    type = SelectField(lazy_gettext(u'Type:'), validators=[InputRequired()], choices=AVAILABLE_MESSAGE_TYPES,
+                       coerce=constants.MessageType.coerce)
     ttl = IntegerField(lazy_gettext(u'Show time:'), validators=[InputRequired(), NumberRange(1, 600)])
     apply = SubmitField(lazy_gettext(u'Send'))
+
+    def get_data(self) -> constants.PlayerMessage:
+        entry = constants.PlayerMessage()
+        entry.message = self.message.data
+        entry.ttl = self.ttl.data
+        entry.type = self.type.data
+        return entry
