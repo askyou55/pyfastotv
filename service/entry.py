@@ -56,7 +56,7 @@ class ServiceSettings(Document):
     DEFAULT_SERVICE_VODS_HOST = 'localhost'
     DEFAULT_SERVICE_VODS_PORT = 7000
     DEFAULT_SERVICE_CODS_HOST = 'localhost'
-    DEFAULT_SERVICE_CODS_PORT = 6000
+    DEFAULT_SERVICE_CODS_PORT = 6001
 
     meta = {'collection': 'services', 'auto_create_index': False}
 
