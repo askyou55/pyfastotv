@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
 from flask_babel import lazy_gettext
 
-from wtforms.fields import StringField, PasswordField, SubmitField, SelectField
-from wtforms.validators import InputRequired, Length, Email
+from wtforms.fields import StringField, PasswordField, SubmitField, SelectField, IntegerField
+from wtforms.validators import InputRequired, Length, Email, NumberRange
 
 from app.common.subscriber.login.entry import SubscriberUser
 from app.common.subscriber.settings import Settings
@@ -52,3 +52,9 @@ class SettingsForm(FlaskForm):
     def update_settings(self, settings: Settings) -> Settings:
         settings.locale = self.locale.data
         return settings
+
+
+class MessageForm(FlaskForm):
+    message = StringField(lazy_gettext(u'Message:'), validators=[InputRequired(), Length(max=512)])
+    ttl = IntegerField(lazy_gettext(u'Show time:'), validators=[InputRequired(), NumberRange(1, 600)])
+    apply = SubmitField(lazy_gettext(u'Send'))
