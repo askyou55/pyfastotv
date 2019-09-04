@@ -13,7 +13,6 @@ from app.common.stream.entry import IStream
 
 class Device(EmbeddedDocument):
     ID_FIELD = "id"
-    CONNECTIONS_FIELD = "connections"
 
     DEFAULT_DEVICE_NAME = 'Device'
     MIN_DEVICE_NAME_LENGTH = 3
@@ -25,10 +24,6 @@ class Device(EmbeddedDocument):
     name = StringField(default=DEFAULT_DEVICE_NAME, min_length=MIN_DEVICE_NAME_LENGTH,
                        max_length=MAX_DEVICE_NAME_LENGTH,
                        required=True)
-    connections = IntField(min_value=1, max_value=100, default=1)
-
-    def to_service(self) -> dict:
-        return {Device.ID_FIELD: str(self.id), Device.CONNECTIONS_FIELD: self.connections}
 
 
 class Subscriber(Document):
