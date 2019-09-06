@@ -67,6 +67,7 @@ class StreamFields:
     RESTARTS = 'restarts'
     START_TIME = 'start_time'
     TIMESTAMP = 'timestamp'
+    IDLE_TIME = 'idle_time'
 
 
 class EpgInfo:
@@ -265,6 +266,7 @@ class HardwareStream(IStream):
     _status = StreamStatus.NEW
     _cpu = 0.0
     _timestamp = 0
+    _idle_time = 0
     _rss = 0
     _loop_start_time = 0
     _restarts = 0
@@ -282,6 +284,7 @@ class HardwareStream(IStream):
         self._status = StreamStatus.NEW
         self._cpu = 0.0
         self._timestamp = 0
+        self._idle_time = 0
         self._rss = 0
         self._loop_start_time = 0
         self._restarts = 0
@@ -295,6 +298,7 @@ class HardwareStream(IStream):
         self._status = StreamStatus(params[StreamFields.STATUS])
         self._cpu = params[StreamFields.CPU]
         self._timestamp = params[StreamFields.TIMESTAMP]
+        self._idle_time = params[StreamFields.IDLE_TIME]
         self._rss = params[StreamFields.RSS]
         self._loop_start_time = params[StreamFields.LOOP_START_TIME]
         self._restarts = params[StreamFields.RESTARTS]
@@ -307,12 +311,17 @@ class HardwareStream(IStream):
         front[StreamFields.STATUS] = self._status
         front[StreamFields.CPU] = self._cpu
         front[StreamFields.TIMESTAMP] = self._timestamp
+        front[StreamFields.IDLE_TIME] = self._idle_time
         front[StreamFields.RSS] = self._rss
         front[StreamFields.LOOP_START_TIME] = self._loop_start_time
         front[StreamFields.RESTARTS] = self._restarts
         front[StreamFields.START_TIME] = self._start_time
         front[StreamFields.INPUT_STREAMS] = self._input_streams
         front[StreamFields.OUTPUT_STREAMS] = self._output_streams
+        # runtime
+        work_time = self._timestamp - self._start_time
+        quality = 100 - (100 * self._idle_time / work_time) if work_time else 100
+        front['quality'] = quality
         return front
 
     def config(self) -> dict:
