@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
 from flask_babel import lazy_gettext
+from datetime import datetime
 
-from wtforms.fields import StringField, PasswordField, SubmitField, SelectField, IntegerField
+from wtforms.fields import StringField, PasswordField, SubmitField, SelectField, IntegerField, DateTimeField
 from wtforms.validators import InputRequired, Length, Email, NumberRange
 
 from app.common.subscriber.login.entry import SubscriberUser
@@ -21,6 +22,7 @@ class SignupForm(FlaskForm):
                           choices=constants.AVAILABLE_COUNTRIES)
     status = SelectField(lazy_gettext(u'Status:'), coerce=SubscriberUser.Status.coerce, validators=[InputRequired()],
                          choices=AVAILABLE_STATUSES)
+    exp_date = DateTimeField(default=datetime.max)
     apply = SubmitField(lazy_gettext(u'Sign Up'))
 
     def make_entry(self) -> SubscriberUser:
@@ -31,6 +33,7 @@ class SignupForm(FlaskForm):
         subscriber.password = SubscriberUser.make_md5_hash_from_password(self.password.data)
         subscriber.country = self.country.data
         subscriber.status = self.status.data
+        subscriber.exp_date = self.exp_date.data
         return subscriber
 
 
