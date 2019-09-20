@@ -12,9 +12,6 @@ from app.common.stream.entry import IStream
 
 
 class Device(EmbeddedDocument):
-    ID_FIELD = "id"
-    CONNECTIONS_FIELD = "connections"
-
     DEFAULT_DEVICE_NAME = 'Device'
     MIN_DEVICE_NAME_LENGTH = 3
     MAX_DEVICE_NAME_LENGTH = 32
@@ -23,18 +20,10 @@ class Device(EmbeddedDocument):
     id = ObjectIdField(required=True, default=ObjectId, unique=True, primary_key=True)
     created_date = DateTimeField(default=datetime.now)
     name = StringField(default=DEFAULT_DEVICE_NAME, min_length=MIN_DEVICE_NAME_LENGTH,
-                       max_length=MAX_DEVICE_NAME_LENGTH,
-                       required=True)
+                       max_length=MAX_DEVICE_NAME_LENGTH, required=True)
 
 
 class Subscriber(Document):
-    ID_FIELD = "id"
-    EMAIL_FIELD = "login"
-    PASSWORD_FIELD = "password"
-    STATUS_FIELD = "status"
-    DEVICES_FIELD = "devices"
-    STREAMS_FIELD = "channels"
-
     class Status(IntEnum):
         NOT_ACTIVE = 0
         ACTIVE = 1
