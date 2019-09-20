@@ -64,6 +64,7 @@ class Subscriber(Document):
     email = StringField(max_length=64, required=True)
     password = StringField(min_length=SUBSCRIBER_HASH_LENGHT, max_length=SUBSCRIBER_HASH_LENGHT, required=True)
     created_date = DateTimeField(default=datetime.now)
+    exp_date = DateTimeField(default=datetime.max)
     status = IntField(default=Status.NOT_ACTIVE)
     type = IntField(default=Type.USER)
     country = StringField(min_length=2, max_length=3, required=True)
