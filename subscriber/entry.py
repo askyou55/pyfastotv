@@ -25,7 +25,7 @@ class Device(EmbeddedDocument):
     name = StringField(default=DEFAULT_DEVICE_NAME, min_length=MIN_DEVICE_NAME_LENGTH,
                        max_length=MAX_DEVICE_NAME_LENGTH,
                        required=True)
-    max_connections = IntField(min_value=1, max_value=100, default=1)
+    max_connections = IntField(min_value=0, max_value=100, default=1)
 
 
 class Subscriber(Document):
