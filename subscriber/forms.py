@@ -22,7 +22,7 @@ class SignupForm(FlaskForm):
                           choices=constants.AVAILABLE_COUNTRIES)
     status = SelectField(lazy_gettext(u'Status:'), coerce=SubscriberUser.Status.coerce, validators=[InputRequired()],
                          choices=AVAILABLE_STATUSES)
-    exp_date = DateTimeField(default=datetime.max)
+    exp_date = DateTimeField(default=SubscriberUser.MAX_DATE)
     apply = SubmitField(lazy_gettext(u'Sign Up'))
 
     def make_entry(self) -> SubscriberUser:
