@@ -25,6 +25,10 @@ class Device(EmbeddedDocument):
 
 class Subscriber(Document):
     MAX_DATE = datetime(2100, 1, 1)
+    ID_FIELD = "id"
+    EMAIL_FIELD = "login"
+    PASSWORD_FIELD = "password"
+
     class Status(IntEnum):
         NOT_ACTIVE = 0
         ACTIVE = 1
