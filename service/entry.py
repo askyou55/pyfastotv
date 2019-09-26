@@ -142,8 +142,3 @@ class ServiceSettings(Document):
         for stream in self.streams:
             stream.delete()
         return super(ServiceSettings, self).delete(*args, **kwargs)
-
-
-# FIXME
-from app.common.provider.entry import Provider
-from app.common.subscriber.entry import Subscriber
