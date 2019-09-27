@@ -49,8 +49,6 @@ class ChannelInfo:
 
 
 class IStreamData(object):
-    meta = {'allow_inheritance': True, 'auto_create_index': True}
-
     tvg_id = StringField(default=constants.DEFAULT_STREAM_TVG_ID, max_length=constants.MAX_STREAM_TVG_ID_LENGTH,
                          min_length=constants.MIN_STREAM_TVG_ID_LENGTH,
                          required=True)

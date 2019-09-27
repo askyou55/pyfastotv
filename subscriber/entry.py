@@ -25,6 +25,8 @@ class Device(EmbeddedDocument):
 
 
 class OwnStream(IStreamData, EmbeddedDocument):
+    meta = {'allow_inheritance': True, 'auto_create_index': True}
+    
     id = ObjectIdField(required=True, default=ObjectId, unique=True, primary_key=True)
 
     def get_id(self):
@@ -54,10 +56,6 @@ class Subscriber(Document):
         def __str__(self):
             return str(self.value)
 
-    class Type(IntEnum):
-        USER = 0,
-        SUPPORT = 1
-
     SUBSCRIBER_HASH_LENGTH = 32
 
     meta = {'allow_inheritance': True, 'collection': 'subscribers', 'auto_create_index': False}
@@ -67,7 +65,6 @@ class Subscriber(Document):
     created_date = DateTimeField(default=datetime.now)
     exp_date = DateTimeField(default=MAX_DATE)
     status = IntField(default=Status.NOT_ACTIVE)
-    type = IntField(default=Type.USER)
     country = StringField(min_length=2, max_length=3, required=True)
     servers = ListField(ReferenceField(ServiceSettings, reverse_delete_rule=PULL), default=[])
     devices = ListField(EmbeddedDocumentField(Device), default=[])
