@@ -1,3 +1,4 @@
+from enum import IntEnum
 from mongoengine import StringField, EmbeddedDocumentField
 
 from app.common.common_entries import OutputUrls
@@ -32,18 +33,25 @@ class EpgInfo:
 
 class ChannelInfo:
     ID_FIELD = 'id'
+    TYPE_FIELD = 'type'
     EPG_FIELD = 'epg'
     VIDEO_ENABLE_FIELD = 'video'
     AUDIO_ENABLE_FIELD = 'audio'
 
-    def __init__(self, sid: str, epg: EpgInfo, have_video=True, have_audio=True):
+    class Type(IntEnum):
+        PUBLIC = 0
+        PRIVATE = 1
+
+    def __init__(self, sid: str, type: Type, epg: EpgInfo, have_video=True, have_audio=True):
         self.have_video = have_video
         self.have_audio = have_audio
         self.epg = epg
         self.id = sid
+        self.type = type
 
     def to_dict(self) -> dict:
-        return {ChannelInfo.ID_FIELD: self.id, ChannelInfo.EPG_FIELD: self.epg.to_dict(),
+        return {ChannelInfo.ID_FIELD: self.id, ChannelInfo.TYPE_FIELD: self.Type,
+                ChannelInfo.EPG_FIELD: self.epg.to_dict(),
                 ChannelInfo.VIDEO_ENABLE_FIELD: self.have_video,
                 ChannelInfo.AUDIO_ENABLE_FIELD: self.have_audio}
 
@@ -66,11 +74,11 @@ class IStreamData(object):
     def get_id(self) -> str:
         raise NotImplementedError('subclasses must override get_id()!')
 
-    def to_channel_info(self) -> [ChannelInfo]:
+    def to_channel_info(self, type: ChannelInfo.Type) -> [ChannelInfo]:
         ch = []
         for out in self.output.urls:
             epg = EpgInfo(self.tvg_id, out.uri, self.name, self.tvg_logo)
-            ch.append(ChannelInfo(self.get_id(), epg))
+            ch.append(ChannelInfo(self.get_id(), type, epg))
         return ch
 
     def generate_playlist(self, header=True) -> str:

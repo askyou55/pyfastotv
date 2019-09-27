@@ -9,7 +9,7 @@ from mongoengine import Document, EmbeddedDocument, StringField, DateTimeField, 
 from app.common.subscriber.settings import Settings
 from app.common.service.entry import ServiceSettings
 from app.common.stream.entry import IStream
-from app.common.stream.stream_data import IStreamData
+from app.common.stream.stream_data import IStreamData, ChannelInfo
 
 
 class Device(EmbeddedDocument):
@@ -26,7 +26,7 @@ class Device(EmbeddedDocument):
 
 class OwnStream(IStreamData, EmbeddedDocument):
     meta = {'allow_inheritance': True, 'auto_create_index': True}
-    
+
     id = ObjectIdField(required=True, default=ObjectId, unique=True, primary_key=True)
 
     def get_id(self):
@@ -93,17 +93,17 @@ class Subscriber(Document):
                 return device
         return None
 
-    def add_stream(self, stream: IStream):
+    def add_official_stream(self, stream: IStream):
         self.streams.append(stream)
         self.save()
 
-    def get_streams(self) -> list:
+    def get_official_streams(self) -> list:
         streams = []
         for serv in self.servers:
             for stream in self.streams:
                 founded_stream = serv.find_stream_settings_by_id(stream.id)
                 if founded_stream:
-                    channels = founded_stream.to_channel_info()
+                    channels = founded_stream.to_channel_info(ChannelInfo.Type.PUBLIC)
                     for ch in channels:
                         streams.append(ch.to_dict())
 
@@ -116,10 +116,15 @@ class Subscriber(Document):
     def get_own_streams(self) -> list:
         own_streams = []
         for stream in self.own_streams:
-            channels = stream.to_channel_info()
+            channels = stream.to_channel_info(ChannelInfo.Type.PRIVATE)
             for ch in channels:
                 own_streams.append(ch.to_dict())
         return own_streams
+
+    def get_streams(self):
+        streams = self.get_official_streams()
+        streams.extend(self.get_own_streams())
+        return streams
 
     @staticmethod
     def make_md5_hash_from_password(password: str) -> str:
