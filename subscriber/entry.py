@@ -10,6 +10,7 @@ from app.common.subscriber.settings import Settings
 from app.common.service.entry import ServiceSettings
 from app.common.stream.entry import IStream
 from app.common.stream.stream_data import IStreamData, ChannelInfo
+from app.common.constants import UIStreamType
 
 
 class Device(EmbeddedDocument):
@@ -103,7 +104,7 @@ class Subscriber(Document):
             for stream in self.streams:
                 founded_stream = serv.find_stream_settings_by_id(stream.id)
                 if founded_stream:
-                    channels = founded_stream.to_channel_info(ChannelInfo.Type.PUBLIC)
+                    channels = founded_stream.to_channel_info(ChannelInfo.Type.PUBLIC, founded_stream.get_type())
                     for ch in channels:
                         streams.append(ch.to_dict())
 
@@ -116,7 +117,7 @@ class Subscriber(Document):
     def get_own_streams(self) -> list:
         own_streams = []
         for stream in self.own_streams:
-            channels = stream.to_channel_info(ChannelInfo.Type.PRIVATE)
+            channels = stream.to_channel_info(ChannelInfo.Type.PRIVATE, UIStreamType.LIVE)
             for ch in channels:
                 own_streams.append(ch.to_dict())
         return own_streams

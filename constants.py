@@ -1,6 +1,13 @@
 from enum import IntEnum
 
 
+class UIStreamType(IntEnum):
+    LIVE = 0
+    RECORD = 1
+    CATCHUP = 2
+    VOD = 3
+
+
 class StreamType(IntEnum):
     PROXY = 0,
     RELAY = 1
@@ -8,10 +15,10 @@ class StreamType(IntEnum):
     TIMESHIFT_PLAYER = 3
     TIMESHIFT_RECORDER = 4
     CATCHUP = 5
-    TEST_LIFE = 6,
-    VOD_RELAY = 7,
-    VOD_ENCODE = 8,
-    COD_RELAY = 9,
+    TEST_LIFE = 6
+    VOD_RELAY = 7
+    VOD_ENCODE = 8
+    COD_RELAY = 9
     COD_ENCODE = 10
 
     @classmethod
@@ -149,7 +156,7 @@ def round_value(value: float):
 class UserAgent(IntEnum):
     GSTREAMER = 0
     VLC = 1
-    FFMPEG = 2,
+    FFMPEG = 2
     WINK = 3
 
     @classmethod

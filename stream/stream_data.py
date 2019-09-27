@@ -34,6 +34,7 @@ class EpgInfo:
 class ChannelInfo:
     ID_FIELD = 'id'
     TYPE_FIELD = 'type'
+    UI_TYPE_FIELD = 'ui_type'
     EPG_FIELD = 'epg'
     VIDEO_ENABLE_FIELD = 'video'
     AUDIO_ENABLE_FIELD = 'audio'
@@ -42,15 +43,18 @@ class ChannelInfo:
         PUBLIC = 0
         PRIVATE = 1
 
-    def __init__(self, sid: str, ctype: Type, epg: EpgInfo, have_video=True, have_audio=True):
+    def __init__(self, sid: str, ctype: Type, utype: constants.UIStreamType, epg: EpgInfo, have_video=True,
+                 have_audio=True):
         self.have_video = have_video
         self.have_audio = have_audio
         self.epg = epg
         self.id = sid
         self.type = ctype
+        self.ui_type = utype
 
     def to_dict(self) -> dict:
         return {ChannelInfo.ID_FIELD: self.id, ChannelInfo.TYPE_FIELD: self.type,
+                ChannelInfo.UI_TYPE_FIELD: self.ui_type,
                 ChannelInfo.EPG_FIELD: self.epg.to_dict(),
                 ChannelInfo.VIDEO_ENABLE_FIELD: self.have_video,
                 ChannelInfo.AUDIO_ENABLE_FIELD: self.have_audio}
@@ -74,11 +78,11 @@ class IStreamData(object):
     def get_id(self) -> str:
         raise NotImplementedError('subclasses must override get_id()!')
 
-    def to_channel_info(self, type: ChannelInfo.Type) -> [ChannelInfo]:
+    def to_channel_info(self, ctype: ChannelInfo.Type, utype: constants.UIStreamType) -> [ChannelInfo]:
         ch = []
         for out in self.output.urls:
             epg = EpgInfo(self.tvg_id, out.uri, self.name, self.tvg_logo)
-            ch.append(ChannelInfo(self.get_id(), type, epg))
+            ch.append(ChannelInfo(self.get_id(), ctype, utype, epg))
         return ch
 
     def generate_playlist(self, header=True) -> str:

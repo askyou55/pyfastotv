@@ -1,10 +1,10 @@
 from enum import IntEnum
-
-from mongoengine import StringField, IntField, EmbeddedDocumentField, Document, DateTimeField, BooleanField, FloatField, \
-    ListField
 from datetime import datetime
 from urllib.parse import urlparse
 import os
+
+from mongoengine import StringField, IntField, EmbeddedDocumentField, Document, DateTimeField, BooleanField, FloatField, \
+    ListField
 
 import app.common.constants as constants
 from app.common.common_entries import Rational, Size, Logo, InputUrls, InputUrl, OutputUrls, OutputUrl
