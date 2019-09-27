@@ -8,6 +8,7 @@ import os
 
 import app.common.constants as constants
 from app.common.common_entries import Rational, Size, Logo, InputUrls, InputUrl, OutputUrls, OutputUrl
+from app.common.stream.stream_data import IStreamData
 
 
 class ConfigFields:
@@ -70,49 +71,6 @@ class StreamFields:
     IDLE_TIME = 'idle_time'
 
 
-class EpgInfo:
-    EPG_ID_FIELD = 'id'
-    EPG_URL_FIELD = 'url'
-    EPG_TITLE_FIELD = 'display_name'
-    EPG_ICON_FIELD = 'icon'
-    EPG_PROGRAMS_FIELD = 'programs'
-
-    id = str
-    url = str
-    title = str
-    icon = str
-    programs = []
-
-    def __init__(self, eid: str, url: str, title: str, icon: str, programs=list()):
-        self.id = eid
-        self.url = url
-        self.title = title
-        self.icon = icon
-        self.programs = programs
-
-    def to_dict(self) -> dict:
-        return {EpgInfo.EPG_ID_FIELD: self.id, EpgInfo.EPG_URL_FIELD: self.url, EpgInfo.EPG_TITLE_FIELD: self.title,
-                EpgInfo.EPG_ICON_FIELD: self.icon, EpgInfo.EPG_PROGRAMS_FIELD: self.programs}
-
-
-class ChannelInfo:
-    ID_FIELD = 'id'
-    EPG_FIELD = 'epg'
-    VIDEO_ENABLE_FIELD = 'video'
-    AUDIO_ENABLE_FIELD = 'audio'
-
-    def __init__(self, sid: str, epg: EpgInfo, have_video=True, have_audio=True):
-        self.have_video = have_video
-        self.have_audio = have_audio
-        self.epg = epg
-        self.id = sid
-
-    def to_dict(self) -> dict:
-        return {ChannelInfo.ID_FIELD: self.id, ChannelInfo.EPG_FIELD: self.epg.to_dict(),
-                ChannelInfo.VIDEO_ENABLE_FIELD: self.have_video,
-                ChannelInfo.AUDIO_ENABLE_FIELD: self.have_audio}
-
-
 class StreamStatus(IntEnum):
     NEW = 0
     INIT = 1
@@ -145,26 +103,13 @@ class StreamLogLevel(IntEnum):
         return str(self.value)
 
 
-class IStream(Document):
+class IStream(Document, IStreamData):
     meta = {'collection': 'streams', 'allow_inheritance': True, 'auto_create_index': True}
 
-    tvg_id = StringField(default=constants.DEFAULT_STREAM_TVG_ID, max_length=constants.MAX_STREAM_TVG_ID_LENGTH,
-                         min_length=constants.MIN_STREAM_TVG_ID_LENGTH,
-                         required=True)
-    name = StringField(default=constants.DEFAULT_STREAM_NAME, max_length=constants.MAX_STREAM_NAME_LENGTH,
-                       min_length=constants.MIN_STREAM_NAME_LENGTH, required=True)
-    tvg_name = StringField(default=constants.DEFAULT_STREAM_TVG_NAME, max_length=constants.MAX_STREAM_NAME_LENGTH,
-                           min_length=constants.MIN_STREAM_NAME_LENGTH, required=True)  #
-    tvg_logo = StringField(default=constants.DEFAULT_STREAM_ICON_URL, max_length=constants.MAX_URL_LENGTH,
-                           min_length=constants.MIN_URL_LENGTH, required=True)  #
-    group_title = StringField(default=constants.DEFAULT_STREAM_GROUP_TITLE,
-                              max_length=constants.MAX_STREAM_GROUP_TITLE_LENGTH,
-                              min_length=constants.MIN_STREAM_GROUP_TITLE_LENGTH, required=True)
     tags = ListField(StringField(max_length=constants.MAX_STREAM_GROUP_TITLE_LENGTH,
                                  min_length=constants.MIN_STREAM_GROUP_TITLE_LENGTH), default=[])
     price = FloatField(default=0.0, min_value=constants.MIN_PRICE, max_value=constants.MAX_PRICE, required=True)
     created_date = DateTimeField(default=datetime.now)  # for inner use
-    output = EmbeddedDocumentField(OutputUrls, default=OutputUrls())  #
 
     def __init__(self, *args, **kwargs):
         super(IStream, self).__init__(*args, **kwargs)
@@ -178,13 +123,6 @@ class IStream(Document):
 
     def get_id(self) -> str:
         return str(self.id)
-
-    def to_channel_info(self) -> [ChannelInfo]:
-        ch = []
-        for out in self.output.urls:
-            epg = EpgInfo(self.tvg_id, out.uri, self.name, self.tvg_logo)
-            ch.append(ChannelInfo(self.get_id(), epg))
-        return ch
 
     def to_front(self) -> dict:
         return {StreamFields.NAME: self.name, StreamFields.ID: self.get_id(), StreamFields.TYPE: self.get_type(),
@@ -211,15 +149,10 @@ class IStream(Document):
                 stream_type == constants.StreamType.TIMESHIFT_PLAYER or \
                 stream_type == constants.StreamType.VOD_ENCODE or \
                 stream_type == constants.StreamType.VOD_RELAY or \
+                stream_type == constants.StreamType.COD_ENCODE or \
+                stream_type == constants.StreamType.COD_RELAY or \
                 stream_type == constants.StreamType.PROXY:
-            for out in self.output.urls:
-                result += '#EXTINF:-1 tvg-id="{0}" tvg-name="{1}" tvg-logo="{2}" group-title="{3}",{4}\n{5}\n'.format(
-                    self.tvg_id,
-                    self.tvg_name,
-                    self.tvg_logo,
-                    self.group_title,
-                    self.name,
-                    out.uri)
+            result += super(IStream, self).generate_playlist(False)
 
         return result
 

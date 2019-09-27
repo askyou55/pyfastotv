@@ -9,6 +9,7 @@ from mongoengine import Document, EmbeddedDocument, StringField, DateTimeField, 
 from app.common.subscriber.settings import Settings
 from app.common.service.entry import ServiceSettings
 from app.common.stream.entry import IStream
+from app.common.stream.stream_data import IStreamData
 
 
 class Device(EmbeddedDocument):
@@ -21,6 +22,13 @@ class Device(EmbeddedDocument):
     created_date = DateTimeField(default=datetime.now)
     name = StringField(default=DEFAULT_DEVICE_NAME, min_length=MIN_DEVICE_NAME_LENGTH,
                        max_length=MAX_DEVICE_NAME_LENGTH, required=True)
+
+
+class OwnStream(IStreamData, EmbeddedDocument):
+    id = ObjectIdField(required=True, default=ObjectId, unique=True, primary_key=True)
+
+    def get_id(self):
+        return str(self.id)
 
 
 class Subscriber(Document):
@@ -50,12 +58,12 @@ class Subscriber(Document):
         USER = 0,
         SUPPORT = 1
 
-    SUBSCRIBER_HASH_LENGHT = 32
+    SUBSCRIBER_HASH_LENGTH = 32
 
     meta = {'allow_inheritance': True, 'collection': 'subscribers', 'auto_create_index': False}
 
     email = StringField(max_length=64, required=True)
-    password = StringField(min_length=SUBSCRIBER_HASH_LENGHT, max_length=SUBSCRIBER_HASH_LENGHT, required=True)
+    password = StringField(min_length=SUBSCRIBER_HASH_LENGTH, max_length=SUBSCRIBER_HASH_LENGTH, required=True)
     created_date = DateTimeField(default=datetime.now)
     exp_date = DateTimeField(default=MAX_DATE)
     status = IntField(default=Status.NOT_ACTIVE)
@@ -64,6 +72,7 @@ class Subscriber(Document):
     servers = ListField(ReferenceField(ServiceSettings, reverse_delete_rule=PULL), default=[])
     devices = ListField(EmbeddedDocumentField(Device), default=[])
     streams = ListField(ReferenceField(IStream, reverse_delete_rule=PULL), default=[])
+    own_streams = ListField(EmbeddedDocumentField(OwnStream), default=[])
     settings = EmbeddedDocumentField(Settings, default=Settings)
 
     def add_server(self, server):
@@ -102,6 +111,18 @@ class Subscriber(Document):
                         streams.append(ch.to_dict())
 
         return streams
+
+    def add_own_stream(self, stream: OwnStream):
+        self.own_streams.append(stream)
+        self.save()
+
+    def get_own_streams(self) -> list:
+        own_streams = []
+        for stream in self.own_streams:
+            channels = stream.to_channel_info()
+            for ch in channels:
+                own_streams.append(ch.to_dict())
+        return own_streams
 
     @staticmethod
     def make_md5_hash_from_password(password: str) -> str:
