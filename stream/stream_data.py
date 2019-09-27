@@ -42,15 +42,15 @@ class ChannelInfo:
         PUBLIC = 0
         PRIVATE = 1
 
-    def __init__(self, sid: str, type: Type, epg: EpgInfo, have_video=True, have_audio=True):
+    def __init__(self, sid: str, ctype: Type, epg: EpgInfo, have_video=True, have_audio=True):
         self.have_video = have_video
         self.have_audio = have_audio
         self.epg = epg
         self.id = sid
-        self.type = type
+        self.type = ctype
 
     def to_dict(self) -> dict:
-        return {ChannelInfo.ID_FIELD: self.id, ChannelInfo.TYPE_FIELD: self.Type,
+        return {ChannelInfo.ID_FIELD: self.id, ChannelInfo.TYPE_FIELD: self.type,
                 ChannelInfo.EPG_FIELD: self.epg.to_dict(),
                 ChannelInfo.VIDEO_ENABLE_FIELD: self.have_video,
                 ChannelInfo.AUDIO_ENABLE_FIELD: self.have_audio}
