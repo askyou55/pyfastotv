@@ -14,6 +14,9 @@ from app.common.constants import UIStreamType
 
 
 class Device(EmbeddedDocument):
+    ID_FIELD = 'id'
+    NAME_FIELD = 'name'
+
     DEFAULT_DEVICE_NAME = 'Device'
     MIN_DEVICE_NAME_LENGTH = 3
     MAX_DEVICE_NAME_LENGTH = 32
@@ -23,6 +26,9 @@ class Device(EmbeddedDocument):
     created_date = DateTimeField(default=datetime.now)
     name = StringField(default=DEFAULT_DEVICE_NAME, min_length=MIN_DEVICE_NAME_LENGTH,
                        max_length=MAX_DEVICE_NAME_LENGTH, required=True)
+
+    def to_dict(self) -> dict:
+        return {Device.ID_FIELD: self.id, Device.NAME_FIELD: self.name}
 
 
 class OwnStream(IStreamData, EmbeddedDocument):
@@ -126,6 +132,13 @@ class Subscriber(Document):
         streams = self.get_official_streams()
         streams.extend(self.get_own_streams())
         return streams
+
+    def get_devices(self):
+        devices = []
+        for dev in self.devices:
+            devices.append(dev.to_dict())
+
+        return devices
 
     @staticmethod
     def make_md5_hash_from_password(password: str) -> str:
