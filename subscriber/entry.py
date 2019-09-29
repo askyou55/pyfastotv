@@ -21,9 +21,27 @@ class Device(EmbeddedDocument):
     MIN_DEVICE_NAME_LENGTH = 3
     MAX_DEVICE_NAME_LENGTH = 32
 
+    class Status(IntEnum):
+        NOT_ACTIVE = 0
+        ACTIVE = 1
+        TRIAL_FINISHED = 2
+        BANNED = 3
+
+        @classmethod
+        def choices(cls):
+            return [(choice, choice.name) for choice in cls]
+
+        @classmethod
+        def coerce(cls, item):
+            return cls(int(item)) if not isinstance(item, cls) else item
+
+        def __str__(self):
+            return str(self.value)
+
     meta = {'allow_inheritance': False, 'auto_create_index': True}
     id = ObjectIdField(required=True, default=ObjectId, unique=True, primary_key=True)
     created_date = DateTimeField(default=datetime.now)
+    status = IntField(default=Status.NOT_ACTIVE)
     name = StringField(default=DEFAULT_DEVICE_NAME, min_length=MIN_DEVICE_NAME_LENGTH,
                        max_length=MAX_DEVICE_NAME_LENGTH, required=True)
 
