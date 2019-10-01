@@ -24,8 +24,7 @@ class Device(EmbeddedDocument):
     class Status(IntEnum):
         NOT_ACTIVE = 0
         ACTIVE = 1
-        TRIAL_FINISHED = 2
-        BANNED = 3
+        BANNED = 2
 
         @classmethod
         def choices(cls):
@@ -45,8 +44,11 @@ class Device(EmbeddedDocument):
     name = StringField(default=DEFAULT_DEVICE_NAME, min_length=MIN_DEVICE_NAME_LENGTH,
                        max_length=MAX_DEVICE_NAME_LENGTH, required=True)
 
+    def get_id(self):
+        return str(self.id)
+
     def to_dict(self) -> dict:
-        return {Device.ID_FIELD: str(self.id), Device.NAME_FIELD: self.name}
+        return {Device.ID_FIELD: self.get_id(), Device.NAME_FIELD: self.name}
 
 
 class OwnStream(IStreamData, EmbeddedDocument):
@@ -151,10 +153,11 @@ class Subscriber(Document):
         streams.extend(self.get_own_streams())
         return streams
 
-    def get_devices(self):
+    def get_not_active_devices(self):
         devices = []
         for dev in self.devices:
-            devices.append(dev.to_dict())
+            if dev.status == Device.Status.NOT_ACTIVE:
+                devices.append(dev.to_dict())
 
         return devices
 
