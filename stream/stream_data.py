@@ -36,7 +36,7 @@ class ChannelInfo:
     TYPE_FIELD = 'type'
     UI_TYPE_FIELD = 'ui_type'
     GROUP_FIELD = 'group'
-    TAGS_FIELD = 'group'
+    TAGS_FIELD = 'tags'
     EPG_FIELD = 'epg'
     VIDEO_ENABLE_FIELD = 'video'
     AUDIO_ENABLE_FIELD = 'audio'
