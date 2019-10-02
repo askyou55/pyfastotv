@@ -1,5 +1,5 @@
 from enum import IntEnum
-from mongoengine import StringField, EmbeddedDocumentField
+from mongoengine import StringField, EmbeddedDocumentField, ListField
 
 from app.common.common_entries import OutputUrls
 
@@ -35,6 +35,8 @@ class ChannelInfo:
     ID_FIELD = 'id'
     TYPE_FIELD = 'type'
     UI_TYPE_FIELD = 'ui_type'
+    GROUP_FIELD = 'group'
+    TAGS_FIELD = 'group'
     EPG_FIELD = 'epg'
     VIDEO_ENABLE_FIELD = 'video'
     AUDIO_ENABLE_FIELD = 'audio'
@@ -43,7 +45,8 @@ class ChannelInfo:
         PUBLIC = 0
         PRIVATE = 1
 
-    def __init__(self, sid: str, ctype: Type, utype: constants.UIStreamType, epg: EpgInfo, have_video=True,
+    def __init__(self, sid: str, ctype: Type, utype: constants.UIStreamType, group: str, tags: list, epg: EpgInfo,
+                 have_video=True,
                  have_audio=True):
         self.have_video = have_video
         self.have_audio = have_audio
@@ -51,10 +54,14 @@ class ChannelInfo:
         self.id = sid
         self.type = ctype
         self.ui_type = utype
+        self.group = group
+        self.tags = tags
 
     def to_dict(self) -> dict:
         return {ChannelInfo.ID_FIELD: self.id, ChannelInfo.TYPE_FIELD: self.type,
                 ChannelInfo.UI_TYPE_FIELD: self.ui_type,
+                ChannelInfo.GROUP_FIELD: self.group,
+                ChannelInfo.TAGS_FIELD: self.tags,
                 ChannelInfo.EPG_FIELD: self.epg.to_dict(),
                 ChannelInfo.VIDEO_ENABLE_FIELD: self.have_video,
                 ChannelInfo.AUDIO_ENABLE_FIELD: self.have_audio}
@@ -73,6 +80,8 @@ class IStreamData(object):
     group_title = StringField(default=constants.DEFAULT_STREAM_GROUP_TITLE,
                               max_length=constants.MAX_STREAM_GROUP_TITLE_LENGTH,
                               min_length=constants.MIN_STREAM_GROUP_TITLE_LENGTH, required=True)
+    tags = ListField(StringField(max_length=constants.MAX_STREAM_GROUP_TITLE_LENGTH,
+                                 min_length=constants.MIN_STREAM_GROUP_TITLE_LENGTH), default=[])
     output = EmbeddedDocumentField(OutputUrls, default=OutputUrls())  #
 
     def get_id(self) -> str:
@@ -82,7 +91,7 @@ class IStreamData(object):
         ch = []
         for out in self.output.urls:
             epg = EpgInfo(self.tvg_id, out.uri, self.name, self.tvg_logo)
-            ch.append(ChannelInfo(self.get_id(), ctype, utype, epg))
+            ch.append(ChannelInfo(self.get_id(), ctype, utype, self.group_title, self.tags, epg))
         return ch
 
     def generate_playlist(self, header=True) -> str:

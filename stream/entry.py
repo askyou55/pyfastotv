@@ -106,8 +106,6 @@ class StreamLogLevel(IntEnum):
 class IStream(Document, IStreamData):
     meta = {'collection': 'streams', 'allow_inheritance': True, 'auto_create_index': True}
 
-    tags = ListField(StringField(max_length=constants.MAX_STREAM_GROUP_TITLE_LENGTH,
-                                 min_length=constants.MIN_STREAM_GROUP_TITLE_LENGTH), default=[])
     price = FloatField(default=0.0, min_value=constants.MIN_PRICE, max_value=constants.MAX_PRICE, required=True)
     created_date = DateTimeField(default=datetime.now)  # for inner use
 
