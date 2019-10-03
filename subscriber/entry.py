@@ -16,6 +16,8 @@ from app.common.constants import StreamType
 class Device(EmbeddedDocument):
     ID_FIELD = 'id'
     NAME_FIELD = 'name'
+    STATUS_FIELD = 'status'
+    CREATED_DATE_FIELD = 'created_date'
 
     DEFAULT_DEVICE_NAME = 'Device'
     MIN_DEVICE_NAME_LENGTH = 3
@@ -48,7 +50,8 @@ class Device(EmbeddedDocument):
         return str(self.id)
 
     def to_dict(self) -> dict:
-        return {Device.ID_FIELD: self.get_id(), Device.NAME_FIELD: self.name}
+        return {Device.ID_FIELD: self.get_id(), Device.NAME_FIELD: self.name, Device.STATUS_FIELD: self.status,
+                Device.CREATED_DATE_FIELD: self.created_date}
 
 
 class OwnStream(IStreamData, EmbeddedDocument):
