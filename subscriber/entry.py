@@ -51,7 +51,7 @@ class Device(EmbeddedDocument):
 
     def to_dict(self) -> dict:
         return {Device.ID_FIELD: self.get_id(), Device.NAME_FIELD: self.name, Device.STATUS_FIELD: self.status,
-                Device.CREATED_DATE_FIELD: self.created_date}
+                Device.CREATED_DATE_FIELD: self.created_date.timestamp() * 1000}
 
 
 class OwnStream(IStreamData, EmbeddedDocument):
