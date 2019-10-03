@@ -69,7 +69,6 @@ class UploadM3uForm(FlaskForm):
     file = FileField()
     type = SelectField(lazy_gettext(u'Type:'), coerce=constants.StreamType.coerce, validators=[InputRequired()],
                        choices=AVAILABLE_STREAM_TYPES_FOR_UPLOAD, default=constants.StreamType.RELAY)
-    tags = TagListField(lazy_gettext(u'Tags:'))
     submit = SubmitField(lazy_gettext(u'Upload'))
 
 
