@@ -1,13 +1,6 @@
 from enum import IntEnum
 
 
-class UIStreamType(IntEnum):
-    LIVE = 0
-    RECORD = 1
-    CATCHUP = 2
-    VOD = 3
-
-
 class StreamType(IntEnum):
     PROXY = 0,
     RELAY = 1
