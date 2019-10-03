@@ -1,13 +1,13 @@
-from enum import IntEnum
 from datetime import datetime
+from enum import IntEnum
 from urllib.parse import urlparse
 import os
 
-from mongoengine import StringField, IntField, EmbeddedDocumentField, Document, DateTimeField, BooleanField, FloatField
+from mongoengine import StringField, IntField, EmbeddedDocumentField, Document, BooleanField, DateTimeField, FloatField
 
 import app.common.constants as constants
 from app.common.common_entries import Rational, Size, Logo, InputUrls, InputUrl, OutputUrls, OutputUrl
-from app.common.stream.stream_data import IStreamData
+from app.common.stream.stream_data import IStreamData, StreamDataFields
 
 
 class ConfigFields:
@@ -52,12 +52,8 @@ class ConfigFields:
     VODS_CLEANUP_TS = 'cleanup_ts'
 
 
-class StreamFields:
-    NAME = 'name'  # UI field
-    ID = 'id'
+class StreamFields(StreamDataFields):
     TYPE = 'type'
-    ICON = 'icon'
-    PRICE = 'price'
     INPUT_STREAMS = 'input_streams'
     OUTPUT_STREAMS = 'output_streams'
     LOOP_START_TIME = 'loop_start_time'
@@ -105,7 +101,6 @@ class StreamLogLevel(IntEnum):
 class IStream(Document, IStreamData):
     meta = {'collection': 'streams', 'allow_inheritance': True, 'auto_create_index': True}
 
-    price = FloatField(default=0.0, min_value=constants.MIN_PRICE, max_value=constants.MAX_PRICE, required=True)
     created_date = DateTimeField(default=datetime.now)  # for inner use
 
     def __init__(self, *args, **kwargs):

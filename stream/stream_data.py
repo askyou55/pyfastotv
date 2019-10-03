@@ -1,5 +1,5 @@
 from enum import IntEnum
-from mongoengine import StringField, EmbeddedDocumentField, ListField
+from mongoengine import StringField, EmbeddedDocumentField, ListField, FloatField
 
 from app.common.common_entries import OutputUrls
 
@@ -67,6 +67,15 @@ class ChannelInfo:
                 ChannelInfo.AUDIO_ENABLE_FIELD: self.have_audio}
 
 
+class StreamDataFields:  # UI field
+    NAME = 'name'
+    ID = 'id'
+    ICON = 'icon'
+    PRICE = 'price'
+    GROUP = 'group'
+    TAGS = 'tags'
+
+
 class IStreamData(object):
     tvg_id = StringField(default=constants.DEFAULT_STREAM_TVG_ID, max_length=constants.MAX_STREAM_TVG_ID_LENGTH,
                          min_length=constants.MIN_STREAM_TVG_ID_LENGTH,
@@ -82,6 +91,9 @@ class IStreamData(object):
                               min_length=constants.MIN_STREAM_GROUP_TITLE_LENGTH, required=True)
     tags = ListField(StringField(max_length=constants.MAX_STREAM_GROUP_TITLE_LENGTH,
                                  min_length=constants.MIN_STREAM_GROUP_TITLE_LENGTH), default=[])
+
+    price = FloatField(default=0.0, min_value=constants.MIN_PRICE, max_value=constants.MAX_PRICE, required=True)
+
     output = EmbeddedDocumentField(OutputUrls, default=OutputUrls())  #
 
     def get_id(self) -> str:
@@ -106,3 +118,8 @@ class IStreamData(object):
                 out.uri)
 
         return result
+
+    def to_dict(self) -> dict:
+        return {StreamDataFields.NAME: self.name, StreamDataFields.ID: self.get_id(),
+                StreamDataFields.ICON: self.tvg_logo, StreamDataFields.PRICE: self.price,
+                StreamDataFields.GROUP: self.group_title, StreamDataFields.TAGS: self.tags}
