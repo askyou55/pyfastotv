@@ -36,6 +36,8 @@ class ChannelInfo:
     TYPE_FIELD = 'type'
     STREAM_TYPE_FIELD = 'stream_type'
     GROUP_FIELD = 'group'
+    DESCRIPTION_FIELD = 'description'
+    PREVIEW_ICON_FIELD = 'preview_icon'
     EPG_FIELD = 'epg'
     VIDEO_ENABLE_FIELD = 'video'
     AUDIO_ENABLE_FIELD = 'audio'
@@ -44,7 +46,8 @@ class ChannelInfo:
         PUBLIC = 0
         PRIVATE = 1
 
-    def __init__(self, sid: str, ctype: Type, stream_type: constants.StreamType, group: str, epg: EpgInfo,
+    def __init__(self, sid: str, ctype: Type, stream_type: constants.StreamType, group: str, description: str,
+                 preview_icon: str, epg: EpgInfo,
                  have_video=True,
                  have_audio=True):
         self.have_video = have_video
@@ -54,11 +57,15 @@ class ChannelInfo:
         self.type = ctype
         self.stream_type = stream_type
         self.group = group
+        self.description = description
+        self.preview_icon = preview_icon
 
     def to_dict(self) -> dict:
         return {ChannelInfo.ID_FIELD: self.id, ChannelInfo.TYPE_FIELD: self.type,
                 ChannelInfo.STREAM_TYPE_FIELD: self.stream_type,
                 ChannelInfo.GROUP_FIELD: self.group,
+                ChannelInfo.DESCRIPTION_FIELD: self.description,
+                ChannelInfo.PREVIEW_ICON_FIELD: self.preview_icon,
                 ChannelInfo.EPG_FIELD: self.epg.to_dict(),
                 ChannelInfo.VIDEO_ENABLE_FIELD: self.have_video,
                 ChannelInfo.AUDIO_ENABLE_FIELD: self.have_audio}
@@ -70,6 +77,8 @@ class StreamDataFields:  # UI field
     ICON = 'icon'
     PRICE = 'price'
     GROUP = 'group'
+    DESCRIPTION = 'description'
+    PREVIEW_ICON = 'preview_icon'
 
 
 class IStreamData(object):
@@ -85,6 +94,12 @@ class IStreamData(object):
     group_title = StringField(default=constants.DEFAULT_STREAM_GROUP_TITLE,
                               max_length=constants.MAX_STREAM_GROUP_TITLE_LENGTH,
                               min_length=constants.MIN_STREAM_GROUP_TITLE_LENGTH, required=True)
+    description = StringField(default=constants.DEFAULT_STREAM_DESCRIPTION,
+                              min_length=constants.MIN_STREAM_DESCRIPTION_LENGTH,
+                              max_length=constants.MAX_STREAM_DESCRIPTION_LENGTH,
+                              required=True)
+    preview_icon = StringField(default=constants.DEFAULT_STREAM_PREVIEW_ICON_URL, max_length=constants.MAX_URL_LENGTH,
+                               min_length=constants.MIN_URL_LENGTH, required=True)  #
 
     price = FloatField(default=0.0, min_value=constants.MIN_PRICE, max_value=constants.MAX_PRICE, required=True)
 
@@ -97,7 +112,8 @@ class IStreamData(object):
         ch = []
         for out in self.output.urls:
             epg = EpgInfo(self.tvg_id, out.uri, self.name, self.tvg_logo)
-            ch.append(ChannelInfo(self.get_id(), ctype, utype, self.group_title, epg))
+            ch.append(
+                ChannelInfo(self.get_id(), ctype, utype, self.group_title, self.description, self.preview_icon, epg))
         return ch
 
     def generate_playlist(self, header=True) -> str:
@@ -116,4 +132,5 @@ class IStreamData(object):
     def to_dict(self) -> dict:
         return {StreamDataFields.NAME: self.name, StreamDataFields.ID: self.get_id(),
                 StreamDataFields.ICON: self.tvg_logo, StreamDataFields.PRICE: self.price,
-                StreamDataFields.GROUP: self.group_title}
+                StreamDataFields.GROUP: self.group_title, StreamDataFields.DESCRIPTION: self.description,
+                StreamDataFields.PREVIEW_ICON: self.preview_icon}
