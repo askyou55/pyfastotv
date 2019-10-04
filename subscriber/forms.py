@@ -1,6 +1,5 @@
 from flask_wtf import FlaskForm
 from flask_babel import lazy_gettext
-from datetime import datetime
 
 from wtforms.fields import StringField, PasswordField, SubmitField, SelectField, IntegerField, DateTimeField
 from wtforms.validators import InputRequired, Length, Email, NumberRange
@@ -67,8 +66,5 @@ class MessageForm(FlaskForm):
     apply = SubmitField(lazy_gettext(u'Send'))
 
     def get_data(self) -> constants.PlayerMessage:
-        entry = constants.PlayerMessage()
-        entry.message = self.message.data
-        entry.ttl = self.ttl.data
-        entry.type = self.type.data
+        entry = constants.PlayerMessage(self.message.data, self.ttl.data, self.type.data)
         return entry
