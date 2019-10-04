@@ -435,3 +435,8 @@ class PlayerMessage:
     message = str()
     ttl = 0
     type = MessageType.TEXT
+
+    def __init__(self, message: str, ttl: int, message_type: MessageType):
+        self.message = message
+        self.ttl = ttl
+        self.type = message_type
