@@ -139,6 +139,10 @@ class Subscriber(Document):
 
         return streams
 
+    def add_own_streams(self, streams: [OwnStream]):
+        self.own_streams += streams
+        self.save()
+
     def add_own_stream(self, stream: OwnStream):
         self.own_streams.append(stream)
         self.save()
