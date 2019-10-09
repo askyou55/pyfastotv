@@ -7,7 +7,7 @@ from mongoengine import StringField, IntField, EmbeddedDocumentField, Document, 
 
 import app.common.constants as constants
 from app.common.common_entries import Rational, Size, Logo, InputUrls, InputUrl, OutputUrls, OutputUrl
-from app.common.stream.stream_data import IStreamData, StreamDataFields
+from app.common.stream.stream_data import ChannelInfo, EpgInfo
 
 
 class ConfigFields:
@@ -52,7 +52,15 @@ class ConfigFields:
     VODS_CLEANUP_TS = 'cleanup_ts'
 
 
-class StreamFields(StreamDataFields):
+class StreamFields:
+    NAME = 'name'
+    ID = 'id'
+    ICON = 'icon'
+    PRICE = 'price'
+    GROUP = 'group'
+    DESCRIPTION = 'description'
+    PREVIEW_ICON = 'preview_icon'
+
     TYPE = 'type'
     INPUT_STREAMS = 'input_streams'
     OUTPUT_STREAMS = 'output_streams'
@@ -98,10 +106,47 @@ class StreamLogLevel(IntEnum):
         return str(self.value)
 
 
-class IStream(Document, IStreamData):
+class IStream(Document):
     meta = {'collection': 'streams', 'allow_inheritance': True, 'auto_create_index': True}
 
     created_date = DateTimeField(default=datetime.now)  # for inner use
+    tvg_id = StringField(default=constants.DEFAULT_STREAM_TVG_ID, max_length=constants.MAX_STREAM_TVG_ID_LENGTH,
+                         min_length=constants.MIN_STREAM_TVG_ID_LENGTH,
+                         required=True)
+    name = StringField(default=constants.DEFAULT_STREAM_NAME, max_length=constants.MAX_STREAM_NAME_LENGTH,
+                       min_length=constants.MIN_STREAM_NAME_LENGTH, required=True)
+    tvg_name = StringField(default=constants.DEFAULT_STREAM_TVG_NAME, max_length=constants.MAX_STREAM_NAME_LENGTH,
+                           min_length=constants.MIN_STREAM_NAME_LENGTH, required=True)  #
+    tvg_logo = StringField(default=constants.DEFAULT_STREAM_ICON_URL, max_length=constants.MAX_URL_LENGTH,
+                           min_length=constants.MIN_URL_LENGTH, required=True)  #
+    group_title = StringField(default=constants.DEFAULT_STREAM_GROUP_TITLE,
+                              max_length=constants.MAX_STREAM_GROUP_TITLE_LENGTH,
+                              min_length=constants.MIN_STREAM_GROUP_TITLE_LENGTH, required=True)
+    description = StringField(default=constants.DEFAULT_STREAM_DESCRIPTION,
+                              min_length=constants.MIN_STREAM_DESCRIPTION_LENGTH,
+                              max_length=constants.MAX_STREAM_DESCRIPTION_LENGTH,
+                              required=True)
+    preview_icon = StringField(default=constants.DEFAULT_STREAM_PREVIEW_ICON_URL, max_length=constants.MAX_URL_LENGTH,
+                               min_length=constants.MIN_URL_LENGTH, required=True)  #
+
+    price = FloatField(default=0.0, min_value=constants.MIN_PRICE, max_value=constants.MAX_PRICE, required=True)
+
+    output = EmbeddedDocumentField(OutputUrls, default=OutputUrls())  #
+
+    def to_channel_info(self, ctype: ChannelInfo.Type) -> ChannelInfo:
+        urls = []
+        for out in self.output.urls:
+            urls.append(out.uri)
+
+        epg = EpgInfo(self.tvg_id, urls, self.name, self.tvg_logo)
+        return ChannelInfo(self.get_id(), ctype, self.get_type(), self.group_title, self.description, self.preview_icon,
+                           epg)
+
+    def to_dict(self) -> dict:
+        return {StreamFields.NAME: self.name, StreamFields.ID: self.get_id(),
+                StreamFields.ICON: self.tvg_logo, StreamFields.PRICE: self.price,
+                StreamFields.GROUP: self.group_title, StreamFields.DESCRIPTION: self.description,
+                StreamFields.PREVIEW_ICON: self.preview_icon}
 
     def __init__(self, *args, **kwargs):
         super(IStream, self).__init__(*args, **kwargs)
@@ -144,7 +189,14 @@ class IStream(Document, IStreamData):
                 stream_type == constants.StreamType.COD_ENCODE or \
                 stream_type == constants.StreamType.COD_RELAY or \
                 stream_type == constants.StreamType.PROXY:
-            result += super(IStream, self).generate_playlist(False)
+            for out in self.output.urls:
+                result += '#EXTINF:-1 tvg-id="{0}" tvg-name="{1}" tvg-logo="{2}" group-title="{3}",{4}\n{5}\n'.format(
+                    self.tvg_id,
+                    self.tvg_name,
+                    self.tvg_logo,
+                    self.group_title,
+                    self.name,
+                    out.uri)
 
         return result
 

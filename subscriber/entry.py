@@ -9,8 +9,7 @@ from mongoengine import Document, EmbeddedDocument, StringField, DateTimeField, 
 from app.common.subscriber.settings import Settings
 from app.common.service.entry import ServiceSettings
 from app.common.stream.entry import IStream
-from app.common.stream.stream_data import IStreamData, ChannelInfo
-from app.common.constants import StreamType
+from app.common.stream.stream_data import ChannelInfo
 
 
 class Device(EmbeddedDocument):
@@ -54,15 +53,6 @@ class Device(EmbeddedDocument):
                 Device.CREATED_DATE_FIELD: int(self.created_date.timestamp() * 1000)}
 
 
-class OwnStream(IStreamData, EmbeddedDocument):
-    meta = {'allow_inheritance': True, 'auto_create_index': True}
-
-    id = ObjectIdField(required=True, default=ObjectId, unique=True, primary_key=True)
-
-    def get_id(self):
-        return str(self.id)
-
-
 class Subscriber(Document):
     MAX_DATE = datetime(2100, 1, 1)
     ID_FIELD = "id"
@@ -99,7 +89,7 @@ class Subscriber(Document):
     servers = ListField(ReferenceField(ServiceSettings, reverse_delete_rule=PULL), default=[])
     devices = ListField(EmbeddedDocumentField(Device), default=[])
     streams = ListField(ReferenceField(IStream, reverse_delete_rule=PULL), default=[])
-    own_streams = ListField(EmbeddedDocumentField(OwnStream), default=[])
+    own_streams = ListField(ReferenceField(IStream, reverse_delete_rule=PULL), default=[])
     settings = EmbeddedDocumentField(Settings, default=Settings)
 
     def add_server(self, server):
@@ -133,22 +123,20 @@ class Subscriber(Document):
             for stream in self.streams:
                 founded_stream = serv.find_stream_settings_by_id(stream.id)
                 if founded_stream:
-                    channels = founded_stream.to_channel_info(ChannelInfo.Type.PUBLIC, founded_stream.get_type())
-                    for ch in channels:
-                        streams.append(ch.to_dict())
+                    channel = founded_stream.to_channel_info(ChannelInfo.Type.PUBLIC)
+                    streams.append(channel.to_dict())
 
         return streams
 
-    def add_own_stream(self, stream: OwnStream):
+    def add_own_stream(self, stream: IStream):
         self.own_streams.append(stream)
         self.save()
 
     def get_own_streams(self) -> list:
         own_streams = []
         for stream in self.own_streams:
-            channels = stream.to_channel_info(ChannelInfo.Type.PRIVATE, StreamType.PROXY)
-            for ch in channels:
-                own_streams.append(ch.to_dict())
+            channel = stream.to_channel_info(ChannelInfo.Type.PRIVATE)
+            own_streams.append(channel.to_dict())
         return own_streams
 
     def get_streams(self):

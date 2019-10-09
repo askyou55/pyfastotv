@@ -1,14 +1,11 @@
 from enum import IntEnum
-from mongoengine import StringField, EmbeddedDocumentField, FloatField
-
-from app.common.common_entries import OutputUrls
 
 import app.common.constants as constants
 
 
 class EpgInfo:
     EPG_ID_FIELD = 'id'
-    EPG_URL_FIELD = 'url'
+    EPG_URLS_FIELD = 'urls'
     EPG_TITLE_FIELD = 'display_name'
     EPG_ICON_FIELD = 'icon'
     EPG_PROGRAMS_FIELD = 'programs'
@@ -19,15 +16,15 @@ class EpgInfo:
     icon = str
     programs = []
 
-    def __init__(self, eid: str, url: str, title: str, icon: str, programs=list()):
+    def __init__(self, eid: str, urls: [], title: str, icon: str, programs=list()):
         self.id = eid
-        self.url = url
+        self.urls = urls
         self.title = title
         self.icon = icon
         self.programs = programs
 
     def to_dict(self) -> dict:
-        return {EpgInfo.EPG_ID_FIELD: self.id, EpgInfo.EPG_URL_FIELD: self.url, EpgInfo.EPG_TITLE_FIELD: self.title,
+        return {EpgInfo.EPG_ID_FIELD: self.id, EpgInfo.EPG_URLS_FIELD: self.urls, EpgInfo.EPG_TITLE_FIELD: self.title,
                 EpgInfo.EPG_ICON_FIELD: self.icon, EpgInfo.EPG_PROGRAMS_FIELD: self.programs}
 
 
@@ -69,68 +66,3 @@ class ChannelInfo:
                 ChannelInfo.EPG_FIELD: self.epg.to_dict(),
                 ChannelInfo.VIDEO_ENABLE_FIELD: self.have_video,
                 ChannelInfo.AUDIO_ENABLE_FIELD: self.have_audio}
-
-
-class StreamDataFields:  # UI field
-    NAME = 'name'
-    ID = 'id'
-    ICON = 'icon'
-    PRICE = 'price'
-    GROUP = 'group'
-    DESCRIPTION = 'description'
-    PREVIEW_ICON = 'preview_icon'
-
-
-class IStreamData(object):
-    tvg_id = StringField(default=constants.DEFAULT_STREAM_TVG_ID, max_length=constants.MAX_STREAM_TVG_ID_LENGTH,
-                         min_length=constants.MIN_STREAM_TVG_ID_LENGTH,
-                         required=True)
-    name = StringField(default=constants.DEFAULT_STREAM_NAME, max_length=constants.MAX_STREAM_NAME_LENGTH,
-                       min_length=constants.MIN_STREAM_NAME_LENGTH, required=True)
-    tvg_name = StringField(default=constants.DEFAULT_STREAM_TVG_NAME, max_length=constants.MAX_STREAM_NAME_LENGTH,
-                           min_length=constants.MIN_STREAM_NAME_LENGTH, required=True)  #
-    tvg_logo = StringField(default=constants.DEFAULT_STREAM_ICON_URL, max_length=constants.MAX_URL_LENGTH,
-                           min_length=constants.MIN_URL_LENGTH, required=True)  #
-    group_title = StringField(default=constants.DEFAULT_STREAM_GROUP_TITLE,
-                              max_length=constants.MAX_STREAM_GROUP_TITLE_LENGTH,
-                              min_length=constants.MIN_STREAM_GROUP_TITLE_LENGTH, required=True)
-    description = StringField(default=constants.DEFAULT_STREAM_DESCRIPTION,
-                              min_length=constants.MIN_STREAM_DESCRIPTION_LENGTH,
-                              max_length=constants.MAX_STREAM_DESCRIPTION_LENGTH,
-                              required=True)
-    preview_icon = StringField(default=constants.DEFAULT_STREAM_PREVIEW_ICON_URL, max_length=constants.MAX_URL_LENGTH,
-                               min_length=constants.MIN_URL_LENGTH, required=True)  #
-
-    price = FloatField(default=0.0, min_value=constants.MIN_PRICE, max_value=constants.MAX_PRICE, required=True)
-
-    output = EmbeddedDocumentField(OutputUrls, default=OutputUrls())  #
-
-    def get_id(self) -> str:
-        raise NotImplementedError('subclasses must override get_id()!')
-
-    def to_channel_info(self, ctype: ChannelInfo.Type, utype: constants.StreamType) -> [ChannelInfo]:
-        ch = []
-        for out in self.output.urls:
-            epg = EpgInfo(self.tvg_id, out.uri, self.name, self.tvg_logo)
-            ch.append(
-                ChannelInfo(self.get_id(), ctype, utype, self.group_title, self.description, self.preview_icon, epg))
-        return ch
-
-    def generate_playlist(self, header=True) -> str:
-        result = '#EXTM3U\n' if header else ''
-        for out in self.output.urls:
-            result += '#EXTINF:-1 tvg-id="{0}" tvg-name="{1}" tvg-logo="{2}" group-title="{3}",{4}\n{5}\n'.format(
-                self.tvg_id,
-                self.tvg_name,
-                self.tvg_logo,
-                self.group_title,
-                self.name,
-                out.uri)
-
-        return result
-
-    def to_dict(self) -> dict:
-        return {StreamDataFields.NAME: self.name, StreamDataFields.ID: self.get_id(),
-                StreamDataFields.ICON: self.tvg_logo, StreamDataFields.PRICE: self.price,
-                StreamDataFields.GROUP: self.group_title, StreamDataFields.DESCRIPTION: self.description,
-                StreamDataFields.PREVIEW_ICON: self.preview_icon}
