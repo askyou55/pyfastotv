@@ -7,7 +7,7 @@ from mongoengine import StringField, IntField, EmbeddedDocumentField, Document, 
 
 import app.common.constants as constants
 from app.common.common_entries import Rational, Size, Logo, InputUrls, InputUrl, OutputUrls, OutputUrl
-from app.common.stream.stream_data import ChannelInfo, VodInfo, EpgInfo, VodDataInfo
+from app.common.stream.stream_data import ChannelInfo, VodInfo, EpgInfo, MovieInfo
 
 
 class ConfigFields:
@@ -785,5 +785,5 @@ def make_vod_info(stream, ctype: ChannelInfo.Type) -> VodInfo:
     for out in stream.output.urls:
         urls.append(out.uri)
 
-    vod = VodDataInfo(stream.description, stream.preview_icon, urls)
+    vod = MovieInfo(stream.description, stream.preview_icon, urls)
     return VodInfo(stream.get_id(), ctype, stream.group_title, vod)

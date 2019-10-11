@@ -64,7 +64,7 @@ class ChannelInfo(BaseInfo):
         return data
 
 
-class VodDataInfo:
+class MovieInfo:
     DESCRIPTION_FIELD = 'description'
     PREVIEW_ICON_FIELD = 'preview_icon'
     URLS_FIELD = 'urls'
@@ -79,14 +79,14 @@ class VodDataInfo:
         self.urls = urls
 
     def to_dict(self) -> dict:
-        return {VodDataInfo.DESCRIPTION_FIELD: self.description, VodDataInfo.PREVIEW_ICON_FIELD: self.preview_icon,
-                VodDataInfo.URLS_FIELD: self.urls}
+        return {MovieInfo.DESCRIPTION_FIELD: self.description, MovieInfo.PREVIEW_ICON_FIELD: self.preview_icon,
+                MovieInfo.URLS_FIELD: self.urls}
 
 
 class VodInfo(BaseInfo):
     VOD_FIELD = 'vod'
 
-    def __init__(self, sid: str, ctype: BaseInfo.Type, group: str, vod: VodDataInfo, have_video=True, have_audio=True):
+    def __init__(self, sid: str, ctype: BaseInfo.Type, group: str, vod: MovieInfo, have_video=True, have_audio=True):
         super(VodInfo, self).__init__(sid, ctype, group, have_video, have_audio)
         self.vod = vod
 
