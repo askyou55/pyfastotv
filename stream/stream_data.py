@@ -1,7 +1,5 @@
 from enum import IntEnum
 
-import app.common.constants as constants
-
 
 class EpgInfo:
     EPG_ID_FIELD = 'id'
@@ -31,7 +29,6 @@ class EpgInfo:
 class BaseInfo:
     ID_FIELD = 'id'
     TYPE_FIELD = 'type'
-    STREAM_TYPE_FIELD = 'stream_type'
     GROUP_FIELD = 'group'
     VIDEO_ENABLE_FIELD = 'video'
     AUDIO_ENABLE_FIELD = 'audio'
@@ -40,18 +37,16 @@ class BaseInfo:
         PUBLIC = 0
         PRIVATE = 1
 
-    def __init__(self, sid: str, ctype: Type, stream_type: constants.StreamType, group: str, have_video=True,
-                 have_audio=True):
+    def __init__(self, sid: str, ctype: Type, group: str, have_video=True, have_audio=True):
         self.id = sid
         self.type = ctype
-        self.stream_type = stream_type
         self.group = group
         self.have_video = have_video
         self.have_audio = have_audio
 
     def to_dict(self):
         return {ChannelInfo.ID_FIELD: self.id, ChannelInfo.TYPE_FIELD: self.type,
-                ChannelInfo.STREAM_TYPE_FIELD: self.stream_type, ChannelInfo.GROUP_FIELD: self.group,
+                ChannelInfo.GROUP_FIELD: self.group,
                 ChannelInfo.VIDEO_ENABLE_FIELD: self.have_video,
                 ChannelInfo.AUDIO_ENABLE_FIELD: self.have_audio}
 
@@ -59,10 +54,8 @@ class BaseInfo:
 class ChannelInfo(BaseInfo):
     EPG_FIELD = 'epg'
 
-    def __init__(self, sid: str, ctype: BaseInfo.Type, stream_type: constants.StreamType, group: str, epg: EpgInfo,
-                 have_video=True,
-                 have_audio=True):
-        super(ChannelInfo, self).__init__(sid, ctype, stream_type, group, have_video, have_audio)
+    def __init__(self, sid: str, ctype: BaseInfo.Type, group: str, epg: EpgInfo, have_video=True, have_audio=True):
+        super(ChannelInfo, self).__init__(sid, ctype, group, have_video, have_audio)
         self.epg = epg
 
     def to_dict(self) -> dict:
@@ -93,10 +86,8 @@ class VodDataInfo:
 class VodInfo(BaseInfo):
     VOD_FIELD = 'vod'
 
-    def __init__(self, sid: str, ctype: BaseInfo.Type, stream_type: constants.StreamType, group: str, vod: VodDataInfo,
-                 have_video=True,
-                 have_audio=True):
-        super(VodInfo, self).__init__(sid, ctype, stream_type, group, have_video, have_audio)
+    def __init__(self, sid: str, ctype: BaseInfo.Type, group: str, vod: VodDataInfo, have_video=True, have_audio=True):
+        super(VodInfo, self).__init__(sid, ctype, group, have_video, have_audio)
         self.vod = vod
 
     def to_dict(self) -> dict:

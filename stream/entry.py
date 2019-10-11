@@ -770,14 +770,14 @@ class CodEncodeStream(EncodeStream):
         return stream
 
 
-# NOT for VODS
+# NOT for VOD
 def make_channel_info(stream: IStream, ctype: ChannelInfo.Type) -> ChannelInfo:
     urls = []
     for out in stream.output.urls:
         urls.append(out.uri)
 
     epg = EpgInfo(stream.tvg_id, urls, stream.name, stream.tvg_logo, [])
-    return ChannelInfo(stream.get_id(), ctype, stream.get_type(), stream.group_title, epg)
+    return ChannelInfo(stream.get_id(), ctype, stream.group_title, epg)
 
 
 def make_vod_info(stream, ctype: ChannelInfo.Type) -> VodInfo:
@@ -786,4 +786,4 @@ def make_vod_info(stream, ctype: ChannelInfo.Type) -> VodInfo:
         urls.append(out.uri)
 
     vod = VodDataInfo(stream.description, stream.preview_icon, urls)
-    return VodInfo(stream.get_id(), ctype, stream.get_type(), stream.group_title, vod)
+    return VodInfo(stream.get_id(), ctype, stream.group_title, vod)
