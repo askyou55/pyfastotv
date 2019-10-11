@@ -118,42 +118,47 @@ class Subscriber(Document):
         self.streams.append(stream)
         self.save()
 
-    def get_official_streams(self) -> list:
+    def get_official_streams(self) -> (list, list):
         streams = []
+        vods = []
         for serv in self.servers:
             for stream in self.streams:
                 founded_stream = serv.find_stream_settings_by_id(stream.id)
                 if founded_stream:
                     stream_type = founded_stream.get_type()
-                    if stream_type == constants.StreamType.VOD_RELAY or constants.StreamType.VOD_ENCODE:
+                    if stream_type == constants.StreamType.VOD_RELAY or stream_type == constants.StreamType.VOD_ENCODE:
                         vod = make_vod_info(founded_stream, BaseInfo.Type.PUBLIC)
-                        streams.append(vod.to_dict())
+                        vods.append(vod.to_dict())
                     else:
                         channel = make_channel_info(founded_stream, BaseInfo.Type.PUBLIC)
                         streams.append(channel.to_dict())
 
-        return streams
+        return streams, vods
 
     def add_own_stream(self, stream: IStream):
         self.own_streams.append(stream)
         self.save()
 
-    def get_own_streams(self) -> list:
+    def get_own_streams(self) -> (list, list):
         own_streams = []
+        own_vods = []
         for founded_stream in self.own_streams:
             stream_type = founded_stream.get_type()
-            if stream_type == constants.StreamType.VOD_RELAY or constants.StreamType.VOD_ENCODE:
+            if stream_type == constants.StreamType.VOD_RELAY or stream_type == constants.StreamType.VOD_ENCODE:
                 vod = make_vod_info(founded_stream, BaseInfo.Type.PRIVATE)
-                own_streams.append(vod.to_dict())
+                own_vods.append(vod.to_dict())
             else:
                 channel = make_channel_info(founded_stream, BaseInfo.Type.PRIVATE)
                 own_streams.append(channel.to_dict())
-        return own_streams
+        return own_streams, own_vods
 
-    def get_streams(self):
-        streams = self.get_official_streams()
-        streams.extend(self.get_own_streams())
-        return streams
+    def get_streams(self) -> (list, list):
+        streams, vods = self.get_official_streams()
+        own_streams, own_vods = self.get_own_streams()
+
+        streams.extend(own_streams)
+        vods.extend(own_vods)
+        return streams, vods
 
     def get_not_active_devices(self):
         devices = []
