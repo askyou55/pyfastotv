@@ -65,6 +65,7 @@ class ChannelInfo(BaseInfo):
 
 
 class MovieInfo:
+    TITLE_FIELD = 'display_name'
     DESCRIPTION_FIELD = 'description'
     PREVIEW_ICON_FIELD = 'preview_icon'
     URLS_FIELD = 'urls'
@@ -73,13 +74,15 @@ class MovieInfo:
     preview_icon = str
     url = []
 
-    def __init__(self, description: str, preview_icon: str, urls: []):
+    def __init__(self, title: str, description: str, preview_icon: str, urls: []):
+        self.title = title
         self.description = description
         self.preview_icon = preview_icon
         self.urls = urls
 
     def to_dict(self) -> dict:
-        return {MovieInfo.DESCRIPTION_FIELD: self.description, MovieInfo.PREVIEW_ICON_FIELD: self.preview_icon,
+        return {MovieInfo.TITLE_FIELD: self.title, MovieInfo.DESCRIPTION_FIELD: self.description,
+                MovieInfo.PREVIEW_ICON_FIELD: self.preview_icon,
                 MovieInfo.URLS_FIELD: self.urls}
 
 

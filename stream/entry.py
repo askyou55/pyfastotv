@@ -785,5 +785,5 @@ def make_vod_info(stream, ctype: ChannelInfo.Type) -> VodInfo:
     for out in stream.output.urls:
         urls.append(out.uri)
 
-    vod = MovieInfo(stream.description, stream.preview_icon, urls)
+    vod = MovieInfo(stream.name, stream.description, stream.preview_icon, urls)
     return VodInfo(stream.get_id(), ctype, stream.group_title, vod)
