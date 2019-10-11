@@ -7,7 +7,7 @@ from mongoengine import StringField, IntField, EmbeddedDocumentField, Document, 
 
 import app.common.constants as constants
 from app.common.common_entries import Rational, Size, Logo, InputUrls, InputUrl, OutputUrls, OutputUrl
-from app.common.stream.stream_data import ChannelInfo, EpgInfo
+from app.common.stream.stream_data import ChannelInfo, VodInfo, EpgInfo, VodDataInfo
 
 
 class ConfigFields:
@@ -52,14 +52,11 @@ class ConfigFields:
     VODS_CLEANUP_TS = 'cleanup_ts'
 
 
-class StreamFields:
+class BaseFields:
     NAME = 'name'
     ID = 'id'
-    ICON = 'icon'
     PRICE = 'price'
     GROUP = 'group'
-    DESCRIPTION = 'description'
-    PREVIEW_ICON = 'preview_icon'
 
     TYPE = 'type'
     INPUT_STREAMS = 'input_streams'
@@ -72,6 +69,16 @@ class StreamFields:
     START_TIME = 'start_time'
     TIMESTAMP = 'timestamp'
     IDLE_TIME = 'idle_time'
+
+
+class StreamFields(BaseFields):
+    ICON = 'icon'
+    QUALITY = 'quality'
+
+
+class VodFields(BaseFields):
+    DESCRIPTION = 'description'  #
+    PREVIEW_ICON = 'preview_icon'  #
 
 
 class StreamStatus(IntEnum):
@@ -110,43 +117,28 @@ class IStream(Document):
     meta = {'collection': 'streams', 'allow_inheritance': True, 'auto_create_index': True}
 
     created_date = DateTimeField(default=datetime.now)  # for inner use
+    name = StringField(default=constants.DEFAULT_STREAM_NAME, max_length=constants.MAX_STREAM_NAME_LENGTH,
+                       min_length=constants.MIN_STREAM_NAME_LENGTH, required=True)
+    group_title = StringField(default=constants.DEFAULT_STREAM_GROUP_TITLE,
+                              max_length=constants.MAX_STREAM_GROUP_TITLE_LENGTH,
+                              min_length=constants.MIN_STREAM_GROUP_TITLE_LENGTH, required=True)
+
     tvg_id = StringField(default=constants.DEFAULT_STREAM_TVG_ID, max_length=constants.MAX_STREAM_TVG_ID_LENGTH,
                          min_length=constants.MIN_STREAM_TVG_ID_LENGTH,
                          required=True)
-    name = StringField(default=constants.DEFAULT_STREAM_NAME, max_length=constants.MAX_STREAM_NAME_LENGTH,
-                       min_length=constants.MIN_STREAM_NAME_LENGTH, required=True)
     tvg_name = StringField(default=constants.DEFAULT_STREAM_TVG_NAME, max_length=constants.MAX_STREAM_NAME_LENGTH,
                            min_length=constants.MIN_STREAM_NAME_LENGTH, required=True)  #
     tvg_logo = StringField(default=constants.DEFAULT_STREAM_ICON_URL, max_length=constants.MAX_URL_LENGTH,
                            min_length=constants.MIN_URL_LENGTH, required=True)  #
-    group_title = StringField(default=constants.DEFAULT_STREAM_GROUP_TITLE,
-                              max_length=constants.MAX_STREAM_GROUP_TITLE_LENGTH,
-                              min_length=constants.MIN_STREAM_GROUP_TITLE_LENGTH, required=True)
-    description = StringField(default=constants.DEFAULT_STREAM_DESCRIPTION,
-                              min_length=constants.MIN_STREAM_DESCRIPTION_LENGTH,
-                              max_length=constants.MAX_STREAM_DESCRIPTION_LENGTH,
-                              required=True)
-    preview_icon = StringField(default=constants.DEFAULT_STREAM_PREVIEW_ICON_URL, max_length=constants.MAX_URL_LENGTH,
-                               min_length=constants.MIN_URL_LENGTH, required=True)  #
 
     price = FloatField(default=0.0, min_value=constants.MIN_PRICE, max_value=constants.MAX_PRICE, required=True)
 
     output = EmbeddedDocumentField(OutputUrls, default=OutputUrls())  #
 
-    def to_channel_info(self, ctype: ChannelInfo.Type) -> ChannelInfo:
-        urls = []
-        for out in self.output.urls:
-            urls.append(out.uri)
-
-        epg = EpgInfo(self.tvg_id, urls, self.name, self.tvg_logo)
-        return ChannelInfo(self.get_id(), ctype, self.get_type(), self.group_title, self.description, self.preview_icon,
-                           epg)
-
     def to_dict(self) -> dict:
-        return {StreamFields.NAME: self.name, StreamFields.ID: self.get_id(),
+        return {StreamFields.NAME: self.name, StreamFields.ID: self.get_id(), StreamFields.TYPE: self.get_type(),
                 StreamFields.ICON: self.tvg_logo, StreamFields.PRICE: self.price,
-                StreamFields.GROUP: self.group_title, StreamFields.DESCRIPTION: self.description,
-                StreamFields.PREVIEW_ICON: self.preview_icon}
+                StreamFields.GROUP: self.group_title}
 
     def __init__(self, *args, **kwargs):
         super(IStream, self).__init__(*args, **kwargs)
@@ -160,10 +152,6 @@ class IStream(Document):
 
     def get_id(self) -> str:
         return str(self.id)
-
-    def to_front(self) -> dict:
-        return {StreamFields.NAME: self.name, StreamFields.ID: self.get_id(), StreamFields.TYPE: self.get_type(),
-                StreamFields.ICON: self.tvg_logo, StreamFields.PRICE: self.price}
 
     def config(self) -> dict:
         return {
@@ -283,8 +271,8 @@ class HardwareStream(IStream):
         self._input_streams = params[StreamFields.INPUT_STREAMS]
         self._output_streams = params[StreamFields.OUTPUT_STREAMS]
 
-    def to_front(self) -> dict:
-        front = super(HardwareStream, self).to_front()
+    def to_dict(self) -> dict:
+        front = super(HardwareStream, self).to_dict()
         front[StreamFields.STATUS] = self._status
         front[StreamFields.CPU] = self._cpu
         front[StreamFields.TIMESTAMP] = self._timestamp
@@ -298,7 +286,7 @@ class HardwareStream(IStream):
         # runtime
         work_time = self._timestamp - self._start_time
         quality = 100 - (100 * self._idle_time / work_time) if work_time else 100
-        front['quality'] = quality
+        front[StreamFields.QUALITY] = quality
         return front
 
     def config(self) -> dict:
@@ -661,12 +649,25 @@ class TestLifeStream(RelayStream):
 
 
 class VodRelayStream(RelayStream):
+    description = StringField(default=constants.DEFAULT_STREAM_DESCRIPTION,
+                              min_length=constants.MIN_STREAM_DESCRIPTION_LENGTH,
+                              max_length=constants.MAX_STREAM_DESCRIPTION_LENGTH,
+                              required=True)
+    preview_icon = StringField(default=constants.DEFAULT_STREAM_PREVIEW_ICON_URL, max_length=constants.MAX_URL_LENGTH,
+                               min_length=constants.MIN_URL_LENGTH, required=True)
+
     def __init__(self, *args, **kwargs):
         super(VodRelayStream, self).__init__(*args, **kwargs)
         self.loop = False
 
     def get_type(self):
         return constants.StreamType.VOD_RELAY
+
+    def to_dict(self) -> dict:
+        front = super(VodRelayStream, self).to_dict()
+        front[VodFields.DESCRIPTION] = self.description
+        front[VodFields.PREVIEW_ICON] = self.preview_icon
+        return front
 
     def config(self) -> dict:
         conf = super(VodRelayStream, self).config()
@@ -686,12 +687,25 @@ class VodRelayStream(RelayStream):
 
 
 class VodEncodeStream(EncodeStream):
+    description = StringField(default=constants.DEFAULT_STREAM_DESCRIPTION,
+                              min_length=constants.MIN_STREAM_DESCRIPTION_LENGTH,
+                              max_length=constants.MAX_STREAM_DESCRIPTION_LENGTH,
+                              required=True)
+    preview_icon = StringField(default=constants.DEFAULT_STREAM_PREVIEW_ICON_URL, max_length=constants.MAX_URL_LENGTH,
+                               min_length=constants.MIN_URL_LENGTH, required=True)
+
     def __init__(self, *args, **kwargs):
         super(VodEncodeStream, self).__init__(*args, **kwargs)
         self.loop = False
 
     def get_type(self):
         return constants.StreamType.VOD_ENCODE
+
+    def to_dict(self) -> dict:
+        front = super(VodEncodeStream, self).to_dict()
+        front[VodFields.DESCRIPTION] = self.description
+        front[VodFields.PREVIEW_ICON] = self.preview_icon
+        return front
 
     def config(self) -> dict:
         conf = super(VodEncodeStream, self).config()
@@ -754,3 +768,22 @@ class CodEncodeStream(EncodeStream):
         stream.input = InputUrls(urls=[InputUrl(id=InputUrl.generate_id())])
         stream.output = OutputUrls(urls=[OutputUrl(id=OutputUrl.generate_id())])
         return stream
+
+
+# NOT for VODS
+def make_channel_info(stream: IStream, ctype: ChannelInfo.Type) -> ChannelInfo:
+    urls = []
+    for out in stream.output.urls:
+        urls.append(out.uri)
+
+    epg = EpgInfo(stream.tvg_id, urls, stream.name, stream.tvg_logo, [])
+    return ChannelInfo(stream.get_id(), ctype, stream.get_type(), stream.group_title, epg)
+
+
+def make_vod_info(stream, ctype: ChannelInfo.Type) -> VodInfo:
+    urls = []
+    for out in stream.output.urls:
+        urls.append(out.uri)
+
+    vod = VodDataInfo(stream.description, stream.preview_icon, urls)
+    return VodInfo(stream.get_id(), ctype, stream.get_type(), stream.group_title, vod)

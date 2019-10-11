@@ -23,11 +23,7 @@ class IStreamForm(FlaskForm):
     tvg_logo = StringField(lazy_gettext(u'Icon:'),
                            validators=[InputRequired(),
                                        Length(min=constants.MIN_URL_LENGTH, max=constants.MAX_URL_LENGTH)])
-    preview_icon = StringField(lazy_gettext(u'Preview:'),
-                               validators=[InputRequired(),
-                                           Length(min=constants.MIN_URL_LENGTH, max=constants.MAX_URL_LENGTH)])
     group_title = StringField(lazy_gettext(u'Group:'), validators=[])
-    description = StringField(lazy_gettext(u'Description:'), validators=[])
     price = FloatField(lazy_gettext(u'Price:'),
                        validators=[InputRequired(), NumberRange(constants.MIN_PRICE, constants.MAX_PRICE)])
     output = FormField(OutputUrlsForm, lazy_gettext(u'Output:'))
@@ -41,9 +37,7 @@ class IStreamForm(FlaskForm):
         entry.name = self.name.data
         entry.tvg_name = self.tvg_name.data
         entry.tvg_logo = self.tvg_logo.data
-        entry.preview_icon = self.preview_icon.data
         entry.group_title = self.group_title.data
-        entry.description = self.description.data
         entry.price = self.price.data
         entry.output = self.output.get_data()
         return entry
@@ -202,18 +196,32 @@ class TestLifeStreamForm(RelayStreamForm):
 
 
 class VodRelayStreamForm(RelayStreamForm):
+    description = StringField(lazy_gettext(u'Description:'), validators=[])
+    preview_icon = StringField(lazy_gettext(u'Preview:'),
+                               validators=[InputRequired(),
+                                           Length(min=constants.MIN_URL_LENGTH, max=constants.MAX_URL_LENGTH)])
+
     def make_entry(self):
         return self.update_entry(VodRelayStream())
 
     def update_entry(self, entry: VodRelayStream):
+        entry.preview_icon = self.preview_icon.data
+        entry.description = self.description.data
         return super(VodRelayStreamForm, self).update_entry(entry)
 
 
 class VodEncodeStreamForm(EncodeStreamForm):
+    description = StringField(lazy_gettext(u'Description:'), validators=[])
+    preview_icon = StringField(lazy_gettext(u'Preview:'),
+                               validators=[InputRequired(),
+                                           Length(min=constants.MIN_URL_LENGTH, max=constants.MAX_URL_LENGTH)])
+
     def make_entry(self):
         return self.update_entry(VodEncodeStream())
 
     def update_entry(self, entry: VodEncodeStream):
+        entry.preview_icon = self.preview_icon.data
+        entry.description = self.description.data
         return super(VodEncodeStreamForm, self).update_entry(entry)
 
 

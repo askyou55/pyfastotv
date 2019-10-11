@@ -8,8 +8,9 @@ from mongoengine import Document, EmbeddedDocument, StringField, DateTimeField, 
 
 from app.common.subscriber.settings import Settings
 from app.common.service.entry import ServiceSettings
-from app.common.stream.entry import IStream
-from app.common.stream.stream_data import ChannelInfo
+from app.common.stream.entry import IStream, make_channel_info, make_vod_info
+from app.common.stream.stream_data import BaseInfo
+import app.common.constants as constants
 
 
 class Device(EmbeddedDocument):
@@ -123,8 +124,13 @@ class Subscriber(Document):
             for stream in self.streams:
                 founded_stream = serv.find_stream_settings_by_id(stream.id)
                 if founded_stream:
-                    channel = founded_stream.to_channel_info(ChannelInfo.Type.PUBLIC)
-                    streams.append(channel.to_dict())
+                    stream_type = founded_stream.get_type()
+                    if stream_type == constants.StreamType.VOD_RELAY or constants.StreamType.VOD_ENCODE:
+                        vod = make_vod_info(founded_stream, BaseInfo.Type.PUBLIC)
+                        streams.append(vod.to_dict())
+                    else:
+                        channel = make_channel_info(founded_stream, BaseInfo.Type.PUBLIC)
+                        streams.append(channel.to_dict())
 
         return streams
 
@@ -134,9 +140,14 @@ class Subscriber(Document):
 
     def get_own_streams(self) -> list:
         own_streams = []
-        for stream in self.own_streams:
-            channel = stream.to_channel_info(ChannelInfo.Type.PRIVATE)
-            own_streams.append(channel.to_dict())
+        for founded_stream in self.own_streams:
+            stream_type = founded_stream.get_type()
+            if stream_type == constants.StreamType.VOD_RELAY or constants.StreamType.VOD_ENCODE:
+                vod = make_vod_info(founded_stream, BaseInfo.Type.PRIVATE)
+                own_streams.append(vod.to_dict())
+            else:
+                channel = make_channel_info(founded_stream, BaseInfo.Type.PRIVATE)
+                own_streams.append(channel.to_dict())
         return own_streams
 
     def get_streams(self):
