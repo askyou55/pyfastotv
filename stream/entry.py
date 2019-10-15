@@ -119,9 +119,9 @@ class IStream(Document):
     created_date = DateTimeField(default=datetime.now)  # for inner use
     name = StringField(default=constants.DEFAULT_STREAM_NAME, max_length=constants.MAX_STREAM_NAME_LENGTH,
                        min_length=constants.MIN_STREAM_NAME_LENGTH, required=True)
-    group_title = StringField(default=constants.DEFAULT_STREAM_GROUP_TITLE,
-                              max_length=constants.MAX_STREAM_GROUP_TITLE_LENGTH,
-                              min_length=constants.MIN_STREAM_GROUP_TITLE_LENGTH, required=True)
+    group = StringField(default=constants.DEFAULT_STREAM_GROUP_TITLE,
+                        max_length=constants.MAX_STREAM_GROUP_TITLE_LENGTH,
+                        min_length=constants.MIN_STREAM_GROUP_TITLE_LENGTH, required=True)
 
     tvg_id = StringField(default=constants.DEFAULT_STREAM_TVG_ID, max_length=constants.MAX_STREAM_TVG_ID_LENGTH,
                          min_length=constants.MIN_STREAM_TVG_ID_LENGTH,
@@ -135,10 +135,13 @@ class IStream(Document):
 
     output = EmbeddedDocumentField(OutputUrls, default=OutputUrls())  #
 
+    def get_groups(self) -> list:
+        return self.group.split(';')
+
     def to_dict(self) -> dict:
         return {StreamFields.NAME: self.name, StreamFields.ID: self.get_id(), StreamFields.TYPE: self.get_type(),
                 StreamFields.ICON: self.tvg_logo, StreamFields.PRICE: self.price,
-                StreamFields.GROUP: self.group_title}
+                StreamFields.GROUP: self.group}
 
     def __init__(self, *args, **kwargs):
         super(IStream, self).__init__(*args, **kwargs)
@@ -182,7 +185,7 @@ class IStream(Document):
                     self.tvg_id,
                     self.tvg_name,
                     self.tvg_logo,
-                    self.group_title,
+                    self.group,
                     self.name,
                     out.uri)
 
@@ -364,7 +367,7 @@ class HardwareStream(IStream):
                     self.tvg_id,
                     self.tvg_name,
                     self.tvg_logo,
-                    self.group_title,
+                    self.group,
                     self.name,
                     out.uri)
 
@@ -777,7 +780,7 @@ def make_channel_info(stream: IStream, ctype: ChannelInfo.Type) -> ChannelInfo:
         urls.append(out.uri)
 
     epg = EpgInfo(stream.tvg_id, urls, stream.name, stream.tvg_logo, [])
-    return ChannelInfo(stream.get_id(), ctype, stream.group_title, epg)
+    return ChannelInfo(stream.get_id(), ctype, stream.group, epg)
 
 
 def make_vod_info(stream, ctype: ChannelInfo.Type) -> VodInfo:
@@ -786,4 +789,4 @@ def make_vod_info(stream, ctype: ChannelInfo.Type) -> VodInfo:
         urls.append(out.uri)
 
     vod = MovieInfo(stream.name, stream.description, stream.preview_icon, urls)
-    return VodInfo(stream.get_id(), ctype, stream.group_title, vod)
+    return VodInfo(stream.get_id(), ctype, stream.group, vod)

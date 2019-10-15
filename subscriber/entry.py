@@ -87,6 +87,7 @@ class Subscriber(Document):
     exp_date = DateTimeField(default=MAX_DATE)
     status = IntField(default=Status.NOT_ACTIVE)
     country = StringField(min_length=2, max_length=3, required=True)
+    language = StringField(default=constants.DEFAULT_LOCALE, required=True)
     servers = ListField(ReferenceField(ServiceSettings, reverse_delete_rule=PULL), default=[])
     devices = ListField(EmbeddedDocumentField(Device), default=[])
     streams = ListField(ReferenceField(IStream, reverse_delete_rule=PULL), default=[])

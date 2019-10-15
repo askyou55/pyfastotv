@@ -12,5 +12,6 @@ class SubscriberUser(UserMixin, Subscriber):
         logout_user()
 
     @classmethod
-    def make_subscriber(cls, email: str, password: str, country: str):
-        return cls(email=email, password=Subscriber.make_md5_hash_from_password(password), country=country)
+    def make_subscriber(cls, email: str, password: str, country: str, language: str):
+        return cls(email=email, password=Subscriber.make_md5_hash_from_password(password), country=country,
+                   language=language)

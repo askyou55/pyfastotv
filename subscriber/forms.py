@@ -19,6 +19,8 @@ class SignupForm(FlaskForm):
     password = PasswordField(lazy_gettext(u'Password:'), validators=[InputRequired(), Length(min=3, max=80)])
     country = SelectField(lazy_gettext(u'Country:'), coerce=str, validators=[InputRequired()],
                           choices=constants.AVAILABLE_COUNTRIES)
+    language = SelectField(lazy_gettext(u'Language:'), coerce=str, validators=[InputRequired()],
+                           choices=constants.AVAILABLE_LOCALES)
     status = SelectField(lazy_gettext(u'Status:'), coerce=SubscriberUser.Status.coerce, validators=[InputRequired()],
                          choices=AVAILABLE_STATUSES)
     exp_date = DateTimeField(default=SubscriberUser.MAX_DATE)
@@ -31,6 +33,7 @@ class SignupForm(FlaskForm):
         subscriber.email = self.email.data
         subscriber.password = SubscriberUser.make_md5_hash_from_password(self.password.data)
         subscriber.country = self.country.data
+        subscriber.language = self.language.data
         subscriber.status = self.status.data
         subscriber.exp_date = self.exp_date.data
         return subscriber
@@ -44,15 +47,18 @@ class SigninForm(FlaskForm):
 
 
 class SettingsForm(FlaskForm):
-    locale = SelectField(lazy_gettext(u'Locale:'), coerce=str, validators=[InputRequired()],
-                         choices=constants.AVAILABLE_LOCALES_PAIRS)
+    country = SelectField(lazy_gettext(u'Country:'), coerce=str, validators=[InputRequired()],
+                          choices=constants.AVAILABLE_COUNTRIES)
+    language = SelectField(lazy_gettext(u'Language:'), coerce=str, validators=[InputRequired()],
+                           choices=constants.AVAILABLE_LOCALES_PAIRS)
     submit = SubmitField(lazy_gettext(u'Apply'))
 
     def make_settings(self) -> Settings:
         return self.update_settings(Settings())
 
     def update_settings(self, settings: Settings) -> Settings:
-        settings.locale = self.locale.data
+        settings.language = self.language.data
+        settings.country = self.country.data
         return settings
 
 
