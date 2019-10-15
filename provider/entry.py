@@ -25,6 +25,7 @@ class Provider(Document):
     status = IntField(default=Status.NO_ACTIVE)
     type = IntField(default=Type.USER)
     country = StringField(min_length=2, max_length=3, required=True)
+    language = StringField(default=constants.DEFAULT_LOCALE, required=True)
 
     settings = EmbeddedDocumentField(Settings, default=Settings)
     servers = ListField(ReferenceField(ServiceSettings, reverse_delete_rule=PULL), default=[])

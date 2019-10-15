@@ -46,22 +46,6 @@ class SigninForm(FlaskForm):
     submit = SubmitField(lazy_gettext(u'Sign In'))
 
 
-class SettingsForm(FlaskForm):
-    country = SelectField(lazy_gettext(u'Country:'), coerce=str, validators=[InputRequired()],
-                          choices=constants.AVAILABLE_COUNTRIES)
-    language = SelectField(lazy_gettext(u'Language:'), coerce=str, validators=[InputRequired()],
-                           choices=constants.AVAILABLE_LOCALES_PAIRS)
-    submit = SubmitField(lazy_gettext(u'Apply'))
-
-    def make_settings(self) -> Settings:
-        return self.update_settings(Settings())
-
-    def update_settings(self, settings: Settings) -> Settings:
-        settings.language = self.language.data
-        settings.country = self.country.data
-        return settings
-
-
 class MessageForm(FlaskForm):
     AVAILABLE_MESSAGE_TYPES = [(constants.MessageType.TEXT, 'Text'), (constants.MessageType.HYPERLINK, 'HYPERLINK')]
 
