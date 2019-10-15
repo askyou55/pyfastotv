@@ -19,8 +19,8 @@ class SignupForm(FlaskForm):
     password = PasswordField(lazy_gettext(u'Password:'), validators=[InputRequired(), Length(min=3, max=80)])
     country = SelectField(lazy_gettext(u'Country:'), coerce=str, validators=[InputRequired()],
                           choices=constants.AVAILABLE_COUNTRIES)
-    language = SelectField(lazy_gettext(u'Language:'), coerce=str, validators=[InputRequired()],
-                           choices=constants.AVAILABLE_LOCALES)
+    language = SelectField(lazy_gettext(u'Language:'), coerce=str, default=constants.DEFAULT_LOCALE,
+                           choices=constants.AVAILABLE_LOCALES_PAIRS)
     status = SelectField(lazy_gettext(u'Status:'), coerce=SubscriberUser.Status.coerce, validators=[InputRequired()],
                          choices=AVAILABLE_STATUSES)
     exp_date = DateTimeField(default=SubscriberUser.MAX_DATE)
