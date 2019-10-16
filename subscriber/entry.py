@@ -88,6 +88,7 @@ class Subscriber(Document):
     status = IntField(default=Status.NOT_ACTIVE)
     country = StringField(min_length=2, max_length=3, required=True)
     language = StringField(default=constants.DEFAULT_LOCALE, required=True)
+
     servers = ListField(ReferenceField(ServiceSettings, reverse_delete_rule=PULL), default=[])
     devices = ListField(EmbeddedDocumentField(Device), default=[])
     streams = ListField(ReferenceField(IStream, reverse_delete_rule=PULL), default=[])
@@ -127,7 +128,7 @@ class Subscriber(Document):
                 founded_stream = serv.find_stream_settings_by_id(stream.id)
                 if founded_stream:
                     stream_type = founded_stream.get_type()
-                    if stream_type == constants.StreamType.VOD_RELAY or stream_type == constants.StreamType.VOD_ENCODE:
+                    if stream_type == constants.StreamType.VOD_RELAY or stream_type == constants.StreamType.VOD_ENCODE or stream_type == constants.StreamType.VOD_PROXY:
                         vod = make_vod_info(founded_stream, BaseInfo.Type.PUBLIC)
                         vods.append(vod.to_dict())
                     else:
@@ -145,7 +146,7 @@ class Subscriber(Document):
         own_vods = []
         for founded_stream in self.own_streams:
             stream_type = founded_stream.get_type()
-            if stream_type == constants.StreamType.VOD_RELAY or stream_type == constants.StreamType.VOD_ENCODE:
+            if stream_type == constants.StreamType.VOD_RELAY or stream_type == constants.StreamType.VOD_ENCODE or stream_type == constants.StreamType.VOD_PROXY:
                 vod = make_vod_info(founded_stream, BaseInfo.Type.PRIVATE)
                 own_vods.append(vod.to_dict())
             else:

@@ -651,82 +651,6 @@ class TestLifeStream(RelayStream):
         return stream
 
 
-class VodRelayStream(RelayStream):
-    description = StringField(default=constants.DEFAULT_STREAM_DESCRIPTION,
-                              min_length=constants.MIN_STREAM_DESCRIPTION_LENGTH,
-                              max_length=constants.MAX_STREAM_DESCRIPTION_LENGTH,
-                              required=True)
-    preview_icon = StringField(default=constants.DEFAULT_STREAM_PREVIEW_ICON_URL, max_length=constants.MAX_URL_LENGTH,
-                               min_length=constants.MIN_URL_LENGTH, required=True)
-
-    def __init__(self, *args, **kwargs):
-        super(VodRelayStream, self).__init__(*args, **kwargs)
-        self.loop = False
-
-    def get_type(self):
-        return constants.StreamType.VOD_RELAY
-
-    def to_dict(self) -> dict:
-        front = super(VodRelayStream, self).to_dict()
-        front[VodFields.DESCRIPTION] = self.description
-        front[VodFields.PREVIEW_ICON] = self.preview_icon
-        return front
-
-    def config(self) -> dict:
-        conf = super(VodRelayStream, self).config()
-        conf[ConfigFields.VODS_CLEANUP_TS] = True
-        return conf
-
-    def fixup_output_urls(self):
-        return self._fixup_vod_output_urls()
-
-    @classmethod
-    def make_stream(cls, settings):
-        stream = cls()
-        stream._settings = settings
-        stream.input = InputUrls(urls=[InputUrl(id=InputUrl.generate_id())])
-        stream.output = OutputUrls(urls=[OutputUrl(id=OutputUrl.generate_id())])
-        return stream
-
-
-class VodEncodeStream(EncodeStream):
-    description = StringField(default=constants.DEFAULT_STREAM_DESCRIPTION,
-                              min_length=constants.MIN_STREAM_DESCRIPTION_LENGTH,
-                              max_length=constants.MAX_STREAM_DESCRIPTION_LENGTH,
-                              required=True)
-    preview_icon = StringField(default=constants.DEFAULT_STREAM_PREVIEW_ICON_URL, max_length=constants.MAX_URL_LENGTH,
-                               min_length=constants.MIN_URL_LENGTH, required=True)
-
-    def __init__(self, *args, **kwargs):
-        super(VodEncodeStream, self).__init__(*args, **kwargs)
-        self.loop = False
-
-    def get_type(self):
-        return constants.StreamType.VOD_ENCODE
-
-    def to_dict(self) -> dict:
-        front = super(VodEncodeStream, self).to_dict()
-        front[VodFields.DESCRIPTION] = self.description
-        front[VodFields.PREVIEW_ICON] = self.preview_icon
-        return front
-
-    def config(self) -> dict:
-        conf = super(VodEncodeStream, self).config()
-        conf[ConfigFields.VODS_CLEANUP_TS] = True
-        return conf
-
-    def fixup_output_urls(self):
-        return self._fixup_vod_output_urls()
-
-    @classmethod
-    def make_stream(cls, settings):
-        stream = cls()
-        stream._settings = settings
-        stream.input = InputUrls(urls=[InputUrl(id=InputUrl.generate_id())])
-        stream.output = OutputUrls(urls=[OutputUrl(id=OutputUrl.generate_id())])
-        return stream
-
-
 class CodRelayStream(RelayStream):
     def __init__(self, *args, **kwargs):
         super(CodRelayStream, self).__init__(*args, **kwargs)
@@ -763,6 +687,88 @@ class CodEncodeStream(EncodeStream):
 
     def fixup_output_urls(self):
         return self._fixup_cod_output_urls()
+
+    @classmethod
+    def make_stream(cls, settings):
+        stream = cls()
+        stream._settings = settings
+        stream.input = InputUrls(urls=[InputUrl(id=InputUrl.generate_id())])
+        stream.output = OutputUrls(urls=[OutputUrl(id=OutputUrl.generate_id())])
+        return stream
+
+
+# VODS
+
+class VodBasedStream:
+    description = StringField(default=constants.DEFAULT_STREAM_DESCRIPTION,
+                              min_length=constants.MIN_STREAM_DESCRIPTION_LENGTH,
+                              max_length=constants.MAX_STREAM_DESCRIPTION_LENGTH,
+                              required=True)
+    preview_icon = StringField(default=constants.DEFAULT_STREAM_PREVIEW_ICON_URL, max_length=constants.MAX_URL_LENGTH,
+                               min_length=constants.MIN_URL_LENGTH, required=True)
+
+    def to_dict(self) -> dict:
+        return {VodFields.DESCRIPTION: self.description, VodFields.PREVIEW_ICON: self.preview_icon}
+
+
+class ProxyVodStream(ProxyStream, VodBasedStream):
+    def __init__(self, *args, **kwargs):
+        super(ProxyVodStream, self).__init__(*args, **kwargs)
+
+    def get_type(self):
+        return constants.StreamType.VOD_PROXY
+
+
+class VodRelayStream(RelayStream, VodBasedStream):
+    def __init__(self, *args, **kwargs):
+        super(VodRelayStream, self).__init__(*args, **kwargs)
+        self.loop = False
+
+    def get_type(self):
+        return constants.StreamType.VOD_RELAY
+
+    def to_dict(self) -> dict:
+        front = RelayStream.__init__(self).to_dict()
+        base = VodBasedStream.__init__(self).to_dict()
+        return {**front, **base}
+
+    def config(self) -> dict:
+        conf = VodRelayStream.config(self)
+        conf[ConfigFields.VODS_CLEANUP_TS] = True
+        return conf
+
+    def fixup_output_urls(self):
+        return self._fixup_vod_output_urls()
+
+    @classmethod
+    def make_stream(cls, settings):
+        stream = cls()
+        stream._settings = settings
+        stream.input = InputUrls(urls=[InputUrl(id=InputUrl.generate_id())])
+        stream.output = OutputUrls(urls=[OutputUrl(id=OutputUrl.generate_id())])
+        return stream
+
+
+class VodEncodeStream(EncodeStream, VodBasedStream):
+    def __init__(self, *args, **kwargs):
+        super(VodEncodeStream, self).__init__(*args, **kwargs)
+        self.loop = False
+
+    def get_type(self):
+        return constants.StreamType.VOD_ENCODE
+
+    def to_dict(self) -> dict:
+        front = EncodeStream.__init__(self).to_dict()
+        base = VodBasedStream.__init__(self).to_dict()
+        return {**front, **base}
+
+    def config(self) -> dict:
+        conf = EncodeStream.config(self)
+        conf[ConfigFields.VODS_CLEANUP_TS] = True
+        return conf
+
+    def fixup_output_urls(self):
+        return self._fixup_vod_output_urls()
 
     @classmethod
     def make_stream(cls, settings):

@@ -6,10 +6,9 @@ from wtforms.fields import StringField, SubmitField, SelectField, IntegerField, 
 
 import app.common.constants as constants
 from app.common.stream.entry import IStream, HardwareStream, ProxyStream, RelayStream, EncodeStream, \
-    TimeshiftRecorderStream, \
-    CatchupStream, TimeshiftPlayerStream, TestLifeStream, VodRelayStream, VodEncodeStream, CodRelayStream, \
-    CodEncodeStream, StreamLogLevel
-from app.common.common_forms import InputUrlsForm, OutputUrlsForm, SizeForm, LogoForm, RationalForm, TagListField
+    TimeshiftRecorderStream, CatchupStream, TimeshiftPlayerStream, TestLifeStream, VodRelayStream, VodEncodeStream, \
+    ProxyVodStream, CodRelayStream, CodEncodeStream, StreamLogLevel
+from app.common.common_forms import InputUrlsForm, OutputUrlsForm, SizeForm, LogoForm, RationalForm
 
 
 class IStreamForm(FlaskForm):
@@ -195,36 +194,6 @@ class TestLifeStreamForm(RelayStreamForm):
         return super(TestLifeStreamForm, self).update_entry(entry)
 
 
-class VodRelayStreamForm(RelayStreamForm):
-    description = StringField(lazy_gettext(u'Description:'), validators=[])
-    preview_icon = StringField(lazy_gettext(u'Preview:'),
-                               validators=[InputRequired(),
-                                           Length(min=constants.MIN_URL_LENGTH, max=constants.MAX_URL_LENGTH)])
-
-    def make_entry(self):
-        return self.update_entry(VodRelayStream())
-
-    def update_entry(self, entry: VodRelayStream):
-        entry.preview_icon = self.preview_icon.data
-        entry.description = self.description.data
-        return super(VodRelayStreamForm, self).update_entry(entry)
-
-
-class VodEncodeStreamForm(EncodeStreamForm):
-    description = StringField(lazy_gettext(u'Description:'), validators=[])
-    preview_icon = StringField(lazy_gettext(u'Preview:'),
-                               validators=[InputRequired(),
-                                           Length(min=constants.MIN_URL_LENGTH, max=constants.MAX_URL_LENGTH)])
-
-    def make_entry(self):
-        return self.update_entry(VodEncodeStream())
-
-    def update_entry(self, entry: VodEncodeStream):
-        entry.preview_icon = self.preview_icon.data
-        entry.description = self.description.data
-        return super(VodEncodeStreamForm, self).update_entry(entry)
-
-
 class CodRelayStreamForm(RelayStreamForm):
     def make_entry(self):
         return self.update_entry(CodRelayStream())
@@ -239,3 +208,42 @@ class CodEncodeStreamForm(EncodeStreamForm):
 
     def update_entry(self, entry: CodEncodeStream):
         return super(CodEncodeStreamForm, self).update_entry(entry)
+
+
+# VODS
+
+class VodBaseStreamForm:
+    description = StringField(lazy_gettext(u'Description:'), validators=[])
+    preview_icon = StringField(lazy_gettext(u'Preview:'),
+                               validators=[InputRequired(),
+                                           Length(min=constants.MIN_URL_LENGTH, max=constants.MAX_URL_LENGTH)])
+
+
+class ProxyVodStreamForm(ProxyStreamForm, VodBaseStreamForm):
+    def make_entry(self):
+        return self.update_entry(ProxyVodStream())
+
+    def update_entry(self, entry: ProxyVodStream):
+        entry.preview_icon = self.preview_icon.data
+        entry.description = self.description.data
+        return ProxyStreamForm.update_entry(self, entry)
+
+
+class VodRelayStreamForm(RelayStreamForm, VodBaseStreamForm):
+    def make_entry(self):
+        return self.update_entry(VodRelayStream())
+
+    def update_entry(self, entry: VodRelayStream):
+        entry.preview_icon = self.preview_icon.data
+        entry.description = self.description.data
+        return RelayStreamForm.update_entry(self, entry)
+
+
+class VodEncodeStreamForm(EncodeStreamForm, VodBaseStreamForm):
+    def make_entry(self):
+        return self.update_entry(VodEncodeStream())
+
+    def update_entry(self, entry: VodEncodeStream):
+        entry.preview_icon = self.preview_icon.data
+        entry.description = self.description.data
+        return EncodeStreamForm.update_entry(self, entry)
