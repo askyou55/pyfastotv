@@ -69,7 +69,7 @@ class MovieInfo:
     TITLE_FIELD = 'display_name'
     DESCRIPTION_FIELD = 'description'
     PREVIEW_ICON_FIELD = 'preview_icon'
-    VOD_TYPE_FIELD = 'vod_type'
+    VOD_TYPE_FIELD = 'type'
     URLS_FIELD = 'urls'
 
     description = str
