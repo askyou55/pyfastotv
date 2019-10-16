@@ -213,6 +213,11 @@ class CodEncodeStreamForm(EncodeStreamForm):
 # VODS
 
 class VodBaseStreamForm:
+    AVAILABLE_VOD_TYPES = [(constants.VodType.VODS, 'VODS'), (constants.VodType.SERIES, 'SERIES')]
+
+    vod_type = SelectField(lazy_gettext(u'Vod type:'), validators=[InputRequired()], choices=AVAILABLE_VOD_TYPES,
+                           coerce=constants.VodType.coerce)
+
     description = StringField(lazy_gettext(u'Description:'), validators=[])
     preview_icon = StringField(lazy_gettext(u'Preview:'),
                                validators=[InputRequired(),
@@ -226,6 +231,7 @@ class ProxyVodStreamForm(ProxyStreamForm, VodBaseStreamForm):
     def update_entry(self, entry: ProxyVodStream):
         entry.preview_icon = self.preview_icon.data
         entry.description = self.description.data
+        entry.vod_type = self.vod_type.data
         return ProxyStreamForm.update_entry(self, entry)
 
 
@@ -236,6 +242,7 @@ class VodRelayStreamForm(RelayStreamForm, VodBaseStreamForm):
     def update_entry(self, entry: VodRelayStream):
         entry.preview_icon = self.preview_icon.data
         entry.description = self.description.data
+        entry.vod_type = self.vod_type.data
         return RelayStreamForm.update_entry(self, entry)
 
 
@@ -246,4 +253,5 @@ class VodEncodeStreamForm(EncodeStreamForm, VodBaseStreamForm):
     def update_entry(self, entry: VodEncodeStream):
         entry.preview_icon = self.preview_icon.data
         entry.description = self.description.data
+        entry.vod_type = self.vod_type.data
         return EncodeStreamForm.update_entry(self, entry)

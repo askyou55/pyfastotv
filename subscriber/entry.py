@@ -6,7 +6,6 @@ from enum import IntEnum
 from mongoengine import Document, EmbeddedDocument, StringField, DateTimeField, IntField, ListField, ReferenceField, \
     PULL, ObjectIdField, EmbeddedDocumentField
 
-from app.common.subscriber.settings import Settings
 from app.common.service.entry import ServiceSettings
 from app.common.stream.entry import IStream, make_channel_info, make_vod_info
 from app.common.stream.stream_data import BaseInfo
@@ -93,7 +92,6 @@ class Subscriber(Document):
     devices = ListField(EmbeddedDocumentField(Device), default=[])
     streams = ListField(ReferenceField(IStream, reverse_delete_rule=PULL), default=[])
     own_streams = ListField(ReferenceField(IStream, reverse_delete_rule=PULL), default=[])
-    settings = EmbeddedDocumentField(Settings, default=Settings)
 
     def add_server(self, server):
         self.servers.append(server)

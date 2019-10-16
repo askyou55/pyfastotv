@@ -1,4 +1,5 @@
 from enum import IntEnum
+import app.common.constants as constants
 
 
 class EpgInfo:
@@ -68,21 +69,24 @@ class MovieInfo:
     TITLE_FIELD = 'display_name'
     DESCRIPTION_FIELD = 'description'
     PREVIEW_ICON_FIELD = 'preview_icon'
+    VOD_TYPE_FIELD = 'vod_type'
     URLS_FIELD = 'urls'
 
     description = str
     preview_icon = str
+    vod_type = constants.VodType.VODS
     url = []
 
-    def __init__(self, title: str, description: str, preview_icon: str, urls: []):
+    def __init__(self, title: str, description: str, preview_icon: str, vod_type: constants.VodType, urls: []):
         self.title = title
         self.description = description
         self.preview_icon = preview_icon
+        self.vod_type = vod_type
         self.urls = urls
 
     def to_dict(self) -> dict:
         return {MovieInfo.TITLE_FIELD: self.title, MovieInfo.DESCRIPTION_FIELD: self.description,
-                MovieInfo.PREVIEW_ICON_FIELD: self.preview_icon,
+                MovieInfo.PREVIEW_ICON_FIELD: self.preview_icon, MovieInfo.VOD_TYPE_FIELD: self.vod_type,
                 MovieInfo.URLS_FIELD: self.urls}
 
 

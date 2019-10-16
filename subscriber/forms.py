@@ -5,7 +5,6 @@ from wtforms.fields import StringField, PasswordField, SubmitField, SelectField,
 from wtforms.validators import InputRequired, Length, Email, NumberRange
 
 from app.common.subscriber.login.entry import SubscriberUser
-from app.common.subscriber.settings import Settings
 import app.common.constants as constants
 
 

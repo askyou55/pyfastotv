@@ -79,6 +79,7 @@ class StreamFields(BaseFields):
 class VodFields(BaseFields):
     DESCRIPTION = 'description'  #
     PREVIEW_ICON = 'preview_icon'  #
+    VOD_TYPE_FIELD = 'vod_type'
 
 
 class StreamStatus(IntEnum):
@@ -700,6 +701,7 @@ class CodEncodeStream(EncodeStream):
 # VODS
 
 class VodBasedStream:
+    vod_type = IntField(default=constants.VodType.VODS, required=True)
     description = StringField(default=constants.DEFAULT_STREAM_DESCRIPTION,
                               min_length=constants.MIN_STREAM_DESCRIPTION_LENGTH,
                               max_length=constants.MAX_STREAM_DESCRIPTION_LENGTH,
@@ -708,7 +710,8 @@ class VodBasedStream:
                                min_length=constants.MIN_URL_LENGTH, required=True)
 
     def to_dict(self) -> dict:
-        return {VodFields.DESCRIPTION: self.description, VodFields.PREVIEW_ICON: self.preview_icon}
+        return {VodFields.DESCRIPTION: self.description, VodFields.PREVIEW_ICON: self.preview_icon,
+                VodFields.VOD_TYPE_FIELD: self.vod_type}
 
 
 class ProxyVodStream(ProxyStream, VodBasedStream):
@@ -794,5 +797,5 @@ def make_vod_info(stream, ctype: ChannelInfo.Type) -> VodInfo:
     for out in stream.output.urls:
         urls.append(out.uri)
 
-    vod = MovieInfo(stream.name, stream.description, stream.preview_icon, urls)
+    vod = MovieInfo(stream.name, stream.description, stream.preview_icon, stream.preview_icon.vod_type, urls)
     return VodInfo(stream.get_id(), ctype, stream.group, vod)
