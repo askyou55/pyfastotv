@@ -728,8 +728,8 @@ class VodRelayStream(RelayStream, VodBasedStream):
         return constants.StreamType.VOD_RELAY
 
     def to_dict(self) -> dict:
-        front = RelayStream.__init__(self).to_dict()
-        base = VodBasedStream.__init__(self).to_dict()
+        front = RelayStream.to_dict(self)
+        base = VodBasedStream.to_dict(self)
         return {**front, **base}
 
     def config(self) -> dict:
@@ -758,8 +758,8 @@ class VodEncodeStream(EncodeStream, VodBasedStream):
         return constants.StreamType.VOD_ENCODE
 
     def to_dict(self) -> dict:
-        front = EncodeStream.__init__(self).to_dict()
-        base = VodBasedStream.__init__(self).to_dict()
+        front = EncodeStream.to_dict(self)
+        base = VodBasedStream.to_dict(self)
         return {**front, **base}
 
     def config(self) -> dict:
