@@ -119,6 +119,7 @@ EAVC_ENC = 'eavcenc'
 OPEN_H264_ENC = 'openh264enc'
 X264_ENC = 'x264enc'
 NV_H264_ENC = 'nvh264enc'
+NV_H265_ENC = 'nvh265enc'
 VAAPI_H264_ENC = 'vaapih264enc'
 VAAPI_MPEG2_ENC = 'vaapimpeg2enc'
 MFX_H264_ENC = 'mfxh264enc'
@@ -132,8 +133,8 @@ VOAAC_ENC = 'voaacenc'
 DEFAULT_AUDIO_CODEC = FAAC
 
 AVAILABLE_VIDEO_CODECS = [(EAVC_ENC, 'eav'), (OPEN_H264_ENC, 'openh264'), (X264_ENC, 'x264'), (NV_H264_ENC, 'nvh264'),
-                          (VAAPI_H264_ENC, 'vaapih264'), (VAAPI_MPEG2_ENC, 'vaapimpeg2'), (MFX_H264_ENC, 'mfxh264'),
-                          (X265_ENC, 'x265'), (MSDK_H264_ENC, 'msdkh264')]
+                          (NV_H265_ENC, 'nvh265'), (VAAPI_H264_ENC, 'vaapih264'), (VAAPI_MPEG2_ENC, 'vaapimpeg2'),
+                          (MFX_H264_ENC, 'mfxh264'), (X265_ENC, 'x265'), (MSDK_H264_ENC, 'msdkh264')]
 AVAILABLE_AUDIO_CODECS = [(LAME_MP3_ENC, 'mpeg'), (FAAC, 'aac'), (VOAAC_ENC, 'voaac')]
 
 DEFAULT_SERVICE_ROOT_DIR_PATH = '~/streamer'
