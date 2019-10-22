@@ -763,7 +763,7 @@ class VodRelayStream(RelayStream, VodBasedStream):
         return {**front, **base}
 
     def config(self) -> dict:
-        conf = VodRelayStream.config(self)
+        conf = RelayStream.config(self)
         conf[ConfigFields.VODS_CLEANUP_TS] = True
         return conf
 
