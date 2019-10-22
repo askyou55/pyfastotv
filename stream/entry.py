@@ -192,6 +192,33 @@ class IStream(Document):
 
         return result
 
+    def generate_device_playlist(self, uid: str, passwd: str, did: str, header=True) -> str:
+        result = '#EXTM3U\n' if header else ''
+        stream_type = self.get_type()
+        if stream_type == constants.StreamType.RELAY or \
+                stream_type == constants.StreamType.ENCODE or \
+                stream_type == constants.StreamType.TIMESHIFT_PLAYER or \
+                stream_type == constants.StreamType.VOD_ENCODE or \
+                stream_type == constants.StreamType.VOD_RELAY or \
+                stream_type == constants.StreamType.COD_ENCODE or \
+                stream_type == constants.StreamType.COD_RELAY:
+            for out in self.output.urls:
+                parsed_uri = urlparse(out.uri)
+                if parsed_uri.scheme == 'http':
+                    file_name = os.path.basename(parsed_uri.path)
+                    host = parsed_uri.hostname
+                    url = 'http://{0}:5001/{1}/{2}/{3}/{4}/{5}/{6}'.format(host, uid, passwd, did, self.id,
+                                                                           out.id, file_name)
+                    result += '#EXTINF:-1 tvg-id="{0}" tvg-name="{1}" tvg-logo="{2}" group-title="{3}",{4}\n{5}\n'.format(
+                        self.tvg_id,
+                        self.tvg_name,
+                        self.tvg_logo,
+                        self.group,
+                        self.name,
+                        url)
+
+        return result
+
     def generate_input_playlist(self, header=True) -> str:
         raise NotImplementedError('subclasses must override generate_input_playlist()!')
 

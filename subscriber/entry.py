@@ -114,6 +114,14 @@ class Subscriber(Document):
                 return device
         return None
 
+    def generate_playlist(self, did: str) -> str:
+        result = '#EXTM3U\n'
+        sid = str(self.id)
+        for stream in self.streams:
+            result += stream.generate_device_playlist(sid, self.password, did, False)
+
+        return result
+
     def add_official_stream(self, stream: IStream):
         self.streams.append(stream)
         self.save()
