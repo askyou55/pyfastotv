@@ -195,7 +195,9 @@ class IStream(Document):
     def generate_device_playlist(self, uid: str, passwd: str, did: str, header=True) -> str:
         result = '#EXTM3U\n' if header else ''
         stream_type = self.get_type()
-        if stream_type == constants.StreamType.RELAY or \
+        if stream_type == constants.StreamType.PROXY or \
+                stream_type == constants.StreamType.VOD_PROXY or \
+                stream_type == constants.StreamType.RELAY or \
                 stream_type == constants.StreamType.ENCODE or \
                 stream_type == constants.StreamType.TIMESHIFT_PLAYER or \
                 stream_type == constants.StreamType.VOD_ENCODE or \
