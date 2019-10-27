@@ -192,7 +192,8 @@ class IStream(Document):
 
         return result
 
-    def generate_device_playlist(self, uid: str, passwd: str, did: str, header=True) -> str:
+    def generate_device_playlist(self, uid: str, passwd: str, did: str, lb_server_host_and_port: str,
+                                 header=True) -> str:
         result = '#EXTM3U\n' if header else ''
         stream_type = self.get_type()
         if stream_type == constants.StreamType.PROXY or \
@@ -208,9 +209,9 @@ class IStream(Document):
                 parsed_uri = urlparse(out.uri)
                 if parsed_uri.scheme == 'http' or parsed_uri.scheme == 'https':
                     file_name = os.path.basename(parsed_uri.path)
-                    host = parsed_uri.hostname
-                    url = 'http://{0}:5001/{1}/{2}/{3}/{4}/{5}/{6}'.format(host, uid, passwd, did, self.id,
-                                                                           out.id, file_name)
+                    url = 'http://{0}/{1}/{2}/{3}/{4}/{5}/{6}'.format(lb_server_host_and_port, uid, passwd, did,
+                                                                      self.id,
+                                                                      out.id, file_name)
                     result += '#EXTINF:-1 tvg-id="{0}" tvg-name="{1}" tvg-logo="{2}" group-title="{3}",{4}\n{5}\n'.format(
                         self.tvg_id,
                         self.tvg_name,

@@ -114,11 +114,11 @@ class Subscriber(Document):
                 return device
         return None
 
-    def generate_playlist(self, did: str) -> str:
+    def generate_playlist(self, did: str, lb_server_host_and_port: str) -> str:
         result = '#EXTM3U\n'
         sid = str(self.id)
         for stream in self.streams:
-            result += stream.generate_device_playlist(sid, self.password, did, False)
+            result += stream.generate_device_playlist(sid, self.password, did, lb_server_host_and_port, False)
 
         return result
 
