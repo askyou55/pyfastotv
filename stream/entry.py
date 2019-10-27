@@ -206,7 +206,7 @@ class IStream(Document):
                 stream_type == constants.StreamType.COD_RELAY:
             for out in self.output.urls:
                 parsed_uri = urlparse(out.uri)
-                if parsed_uri.scheme == 'http':
+                if parsed_uri.scheme == 'http' or parsed_uri.scheme == 'https':
                     file_name = os.path.basename(parsed_uri.path)
                     host = parsed_uri.hostname
                     url = 'http://{0}:5001/{1}/{2}/{3}/{4}/{5}/{6}'.format(host, uid, passwd, did, self.id,
