@@ -1,9 +1,22 @@
 import requests
 import json
 import ssl
+import os
 
 from validate_email import validate_email
 from urllib.request import urlopen
+
+
+def download_file(url: str, path: str, timeout=1):
+    get_response = requests.get(url, stream=True, timeout=timeout)
+    file_name = url.split('/')[-1]
+    full_path = os.path.join(path, file_name)
+    with open(full_path, 'wb') as f:
+        for chunk in get_response.iter_content(chunk_size=1024):
+            if chunk:  # filter out keep-alive new chunks
+                f.write(chunk)
+
+    return full_path, file_name
 
 
 def is_valid_http_url(url: str, timeout=1) -> bool:
