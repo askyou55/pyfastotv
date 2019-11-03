@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 
 from flask_babel import lazy_gettext
-from wtforms.fields import StringField, SubmitField
+from wtforms.fields import StringField, SubmitField, FileField
 from wtforms.validators import InputRequired, Length
 
 from app.common.epg.entry import Epg
@@ -21,3 +21,8 @@ class EpgForm(FlaskForm):
     def update_entry(self, entry: Epg) -> Epg:
         entry.uri = self.uri.data
         return entry
+
+
+class UploadEpgForm(FlaskForm):
+    file = FileField()
+    submit = SubmitField(lazy_gettext(u'Upload'))
