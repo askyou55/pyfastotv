@@ -12,7 +12,7 @@ from app.common.common_forms import InputUrlsForm, OutputUrlsForm, SizeForm, Log
 
 
 class IStreamForm(FlaskForm):
-    tvg_id = StringField(lazy_gettext(u'Tvg-ID:'),
+    tvg_id = StringField(lazy_gettext(u'Epg ID:'),
                          validators=[
                              Length(min=constants.MIN_STREAM_TVG_ID_LENGTH, max=constants.MAX_STREAM_TVG_ID_LENGTH)])
     name = StringField(lazy_gettext(u'Name:'),
