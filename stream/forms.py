@@ -26,6 +26,7 @@ class IStreamForm(FlaskForm):
     price = FloatField(lazy_gettext(u'Price:'),
                        validators=[InputRequired(), NumberRange(constants.MIN_PRICE, constants.MAX_PRICE)])
     output = FormField(OutputUrlsForm, lazy_gettext(u'Output:'))
+    visible = BooleanField(lazy_gettext(u'Visible for clients:'), validators=[])
     submit = SubmitField(lazy_gettext(u'Confirm'))
 
     def make_entry(self) -> IStream:
@@ -38,6 +39,7 @@ class IStreamForm(FlaskForm):
         entry.tvg_logo = self.tvg_logo.data
         entry.group = self.group.data
         entry.price = self.price.data
+        entry.visible = self.visible.data
         entry.output = self.output.get_data()
         return entry
 

@@ -57,6 +57,7 @@ class BaseFields:
     ID = 'id'
     PRICE = 'price'
     GROUP = 'group'
+    VISIBLE = 'visible'
 
     TYPE = 'type'
     INPUT_STREAMS = 'input_streams'
@@ -133,6 +134,7 @@ class IStream(Document):
                            min_length=constants.MIN_URL_LENGTH, required=True)  #
 
     price = FloatField(default=0.0, min_value=constants.MIN_PRICE, max_value=constants.MAX_PRICE, required=True)
+    visible = BooleanField(default=True, required=True)
 
     output = EmbeddedDocumentField(OutputUrls, default=OutputUrls())  #
 
@@ -141,7 +143,7 @@ class IStream(Document):
 
     def to_dict(self) -> dict:
         return {StreamFields.NAME: self.name, StreamFields.ID: self.get_id(), StreamFields.TYPE: self.get_type(),
-                StreamFields.ICON: self.tvg_logo, StreamFields.PRICE: self.price,
+                StreamFields.ICON: self.tvg_logo, StreamFields.PRICE: self.price, StreamFields.VISIBLE: self.visible,
                 StreamFields.GROUP: self.group}
 
     def __init__(self, *args, **kwargs):
@@ -612,6 +614,7 @@ class TimeshiftRecorderStream(RelayStream):
     @classmethod
     def make_stream(cls, settings):
         stream = cls()
+        stream.visible = False
         stream._settings = settings
         stream.input = InputUrls(urls=[InputUrl(id=InputUrl.generate_id())])
         return stream
@@ -677,6 +680,7 @@ class TestLifeStream(RelayStream):
     def make_stream(cls, settings):
         stream = cls()
         stream._settings = settings
+        stream.visible = False
         stream.input = InputUrls(urls=[InputUrl(id=InputUrl.generate_id())])
         stream.output = OutputUrls(urls=[OutputUrl(id=OutputUrl.generate_id(), uri=constants.DEFAULT_TEST_URL)])
         return stream
