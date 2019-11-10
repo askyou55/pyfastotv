@@ -228,7 +228,7 @@ class VodBaseStreamForm:
                               validators=[
                                   Length(min=constants.MIN_URL_LENGTH, max=constants.MAX_URL_LENGTH)])
     user_score = FloatField(lazy_gettext(u'User score:'), validators=[InputRequired(), Length(min=0, max=100)])
-    prime_date = StringField(lazy_gettext(u'Trailer URL:'),
+    prime_date = StringField(lazy_gettext(u'Prime time:'),
                              validators=[
                                  Length(min=VodBasedStream.MAX_DATE, max=VodBasedStream.MAX_DATE)])
     country = StringField(lazy_gettext(u'Country:'),

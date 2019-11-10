@@ -72,7 +72,7 @@ class MovieInfo:
     VOD_TYPE_FIELD = 'type'
     TRAILER_URL_FIELD = 'trailer_url'
     USER_SCORE_FIELD = 'user_score'
-    PRIME_DATE_FIELD = 'date'
+    PRIME_DATE_FIELD = 'prime_date'
     COUNTRY_FIELD = 'country'
     DURATION_FIELD = 'duration'
     URLS_FIELD = 'urls'
@@ -83,7 +83,7 @@ class MovieInfo:
     url = []
 
     def __init__(self, title: str, description: str, preview_icon: str, trailer_url: str, user_score: float,
-                 prime_date, country: str, duration: int,
+                 prime_date: int, country: str, duration: int,
                  vod_type: constants.VodType,
                  urls: []):
         self.title = title
