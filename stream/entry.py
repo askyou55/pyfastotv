@@ -78,9 +78,11 @@ class StreamFields(BaseFields):
 
 
 class VodFields(BaseFields):
-    DESCRIPTION = 'description'  #
-    PREVIEW_ICON = 'preview_icon'  #
+    DESCRIPTION_FIELD = 'description'  #
+    PREVIEW_ICON_FIELD = 'preview_icon'  #
     VOD_TYPE_FIELD = 'vod_type'
+    TRAILER_URL_FIELD = 'trailer_url'
+    USER_SCORE_FIELD = 'user_score'
 
 
 class StreamStatus(IntEnum):
@@ -742,9 +744,13 @@ class VodBasedStream:
                               required=True)
     preview_icon = StringField(default=constants.DEFAULT_STREAM_PREVIEW_ICON_URL, max_length=constants.MAX_URL_LENGTH,
                                min_length=constants.MIN_URL_LENGTH, required=True)
+    trailer_url = StringField(max_length=constants.MAX_URL_LENGTH,
+                              min_length=constants.MIN_URL_LENGTH, required=False)
+    user_score = FloatField(default=0.0, min_value=0, max_value=100, required=True)
 
     def to_dict(self) -> dict:
-        return {VodFields.DESCRIPTION: self.description, VodFields.PREVIEW_ICON: self.preview_icon,
+        return {VodFields.DESCRIPTION_FIELD: self.description, VodFields.PREVIEW_ICON_FIELD: self.preview_icon,
+                VodFields.TRAILER_URL_FIELD: self.trailer_url, VodFields.USER_SCORE_FIELD: self.user_score,
                 VodFields.VOD_TYPE_FIELD: self.vod_type}
 
 
@@ -831,5 +837,6 @@ def make_vod_info(stream, ctype: ChannelInfo.Type) -> VodInfo:
     for out in stream.output.urls:
         urls.append(out.uri)
 
-    vod = MovieInfo(stream.name, stream.description, stream.preview_icon, stream.preview_icon.vod_type, urls)
+    vod = MovieInfo(stream.name, stream.description, stream.preview_icon, stream.trailer_url, stream.user_score,
+                    stream.vod_type, urls)
     return VodInfo(stream.get_id(), ctype, stream.group, vod)

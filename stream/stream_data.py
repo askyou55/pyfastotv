@@ -70,6 +70,8 @@ class MovieInfo:
     DESCRIPTION_FIELD = 'description'
     PREVIEW_ICON_FIELD = 'preview_icon'
     VOD_TYPE_FIELD = 'type'
+    TRAILER_URL_FIELD = 'trailer_url'
+    USER_SCORE_FIELD = 'user_score'
     URLS_FIELD = 'urls'
 
     description = str
@@ -77,16 +79,21 @@ class MovieInfo:
     vod_type = constants.VodType.VODS
     url = []
 
-    def __init__(self, title: str, description: str, preview_icon: str, vod_type: constants.VodType, urls: []):
+    def __init__(self, title: str, description: str, preview_icon: str, trailer_url: str, user_score: float,
+                 vod_type: constants.VodType,
+                 urls: []):
         self.title = title
         self.description = description
         self.preview_icon = preview_icon
+        self.trailer_url = trailer_url
+        self.user_score = user_score
         self.vod_type = vod_type
         self.urls = urls
 
     def to_dict(self) -> dict:
         return {MovieInfo.TITLE_FIELD: self.title, MovieInfo.DESCRIPTION_FIELD: self.description,
-                MovieInfo.PREVIEW_ICON_FIELD: self.preview_icon, MovieInfo.VOD_TYPE_FIELD: self.vod_type,
+                MovieInfo.PREVIEW_ICON_FIELD: self.preview_icon, MovieInfo.TRAILER_URL_FIELD: self.trailer_url,
+                MovieInfo.VOD_TYPE_FIELD: self.vod_type,
                 MovieInfo.URLS_FIELD: self.urls}
 
 

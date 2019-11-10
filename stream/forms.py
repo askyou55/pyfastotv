@@ -224,6 +224,10 @@ class VodBaseStreamForm:
     preview_icon = StringField(lazy_gettext(u'Preview:'),
                                validators=[InputRequired(),
                                            Length(min=constants.MIN_URL_LENGTH, max=constants.MAX_URL_LENGTH)])
+    trailer_url = StringField(lazy_gettext(u'Trailer URL:'),
+                              validators=[
+                                  Length(min=constants.MIN_URL_LENGTH, max=constants.MAX_URL_LENGTH)])
+    user_score = FloatField(lazy_gettext(u'User score:'), validators=[InputRequired(), Length(min=0, max=100)])
 
 
 class ProxyVodStreamForm(ProxyStreamForm, VodBaseStreamForm):
@@ -233,6 +237,8 @@ class ProxyVodStreamForm(ProxyStreamForm, VodBaseStreamForm):
     def update_entry(self, entry: ProxyVodStream):
         entry.preview_icon = self.preview_icon.data
         entry.description = self.description.data
+        entry.trailer_url = self.trailer_url.data
+        entry.user_score = self.user_score.data
         entry.vod_type = self.vod_type.data
         return ProxyStreamForm.update_entry(self, entry)
 
@@ -244,6 +250,8 @@ class VodRelayStreamForm(RelayStreamForm, VodBaseStreamForm):
     def update_entry(self, entry: VodRelayStream):
         entry.preview_icon = self.preview_icon.data
         entry.description = self.description.data
+        entry.trailer_url = self.trailer_url.data
+        entry.user_score = self.user_score.data
         entry.vod_type = self.vod_type.data
         return RelayStreamForm.update_entry(self, entry)
 
@@ -255,5 +263,7 @@ class VodEncodeStreamForm(EncodeStreamForm, VodBaseStreamForm):
     def update_entry(self, entry: VodEncodeStream):
         entry.preview_icon = self.preview_icon.data
         entry.description = self.description.data
+        entry.trailer_url = self.trailer_url.data
+        entry.user_score = self.user_score.data
         entry.vod_type = self.vod_type.data
         return EncodeStreamForm.update_entry(self, entry)
