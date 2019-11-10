@@ -83,6 +83,9 @@ class VodFields(BaseFields):
     VOD_TYPE_FIELD = 'vod_type'
     TRAILER_URL_FIELD = 'trailer_url'
     USER_SCORE_FIELD = 'user_score'
+    PRIME_DATE_FIELD = 'date'
+    COUNTRY_FIELD = 'country'
+    DURATION_FIELD = 'duration'
 
 
 class StreamStatus(IntEnum):
@@ -737,6 +740,9 @@ class CodEncodeStream(EncodeStream):
 # VODS
 
 class VodBasedStream:
+    MAX_DATE = datetime(2100, 1, 1)
+    MIN_DATE = datetime(1900, 1, 1)
+    MAX_DURATION_MSEC = 3600 * 1000 * 365
     vod_type = IntField(default=constants.VodType.VODS, required=True)
     description = StringField(default=constants.DEFAULT_STREAM_DESCRIPTION,
                               min_length=constants.MIN_STREAM_DESCRIPTION_LENGTH,
@@ -747,11 +753,15 @@ class VodBasedStream:
     trailer_url = StringField(max_length=constants.MAX_URL_LENGTH,
                               min_length=constants.MIN_URL_LENGTH, required=False)
     user_score = FloatField(default=0.0, min_value=0, max_value=100, required=True)
+    prime_date = DateTimeField(min_value=MIN_DATE, max_value=MAX_DATE, required=False)
+    country = StringField(required=False)
+    duration = IntField(min_value=0, max_value=MAX_DURATION_MSEC, required=False)
 
     def to_dict(self) -> dict:
         return {VodFields.DESCRIPTION_FIELD: self.description, VodFields.PREVIEW_ICON_FIELD: self.preview_icon,
                 VodFields.TRAILER_URL_FIELD: self.trailer_url, VodFields.USER_SCORE_FIELD: self.user_score,
-                VodFields.VOD_TYPE_FIELD: self.vod_type}
+                VodFields.PRIME_DATE_FIELD: self.prime_date, VodFields.COUNTRY_FIELD: self.country,
+                VodFields.DURATION_FIELD: self.duration}
 
 
 class ProxyVodStream(ProxyStream, VodBasedStream):
@@ -838,5 +848,6 @@ def make_vod_info(stream, ctype: ChannelInfo.Type) -> VodInfo:
         urls.append(out.uri)
 
     vod = MovieInfo(stream.name, stream.description, stream.preview_icon, stream.trailer_url, stream.user_score,
+                    stream.prime_date, stream.country, stream.duration,
                     stream.vod_type, urls)
     return VodInfo(stream.get_id(), ctype, stream.group, vod)

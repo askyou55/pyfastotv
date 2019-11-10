@@ -7,7 +7,7 @@ from wtforms.fields import StringField, SubmitField, SelectField, IntegerField, 
 import app.common.constants as constants
 from app.common.stream.entry import IStream, HardwareStream, ProxyStream, RelayStream, EncodeStream, \
     TimeshiftRecorderStream, CatchupStream, TimeshiftPlayerStream, TestLifeStream, VodRelayStream, VodEncodeStream, \
-    ProxyVodStream, CodRelayStream, CodEncodeStream, StreamLogLevel
+    ProxyVodStream, CodRelayStream, CodEncodeStream, StreamLogLevel, VodBasedStream
 from app.common.common_forms import InputUrlsForm, OutputUrlsForm, SizeForm, LogoForm, RationalForm
 
 
@@ -228,6 +228,14 @@ class VodBaseStreamForm:
                               validators=[
                                   Length(min=constants.MIN_URL_LENGTH, max=constants.MAX_URL_LENGTH)])
     user_score = FloatField(lazy_gettext(u'User score:'), validators=[InputRequired(), Length(min=0, max=100)])
+    prime_date = StringField(lazy_gettext(u'Trailer URL:'),
+                             validators=[
+                                 Length(min=VodBasedStream.MAX_DATE, max=VodBasedStream.MAX_DATE)])
+    country = StringField(lazy_gettext(u'Country:'),
+                          validators=[
+                              Length(min=constants.MIN_URL_LENGTH, max=constants.MAX_URL_LENGTH)])
+    duration = IntegerField(lazy_gettext(u'Duration in msec:'),
+                            validators=[Length(min=0, max=VodBasedStream.MAX_DURATION_MSEC)])
 
 
 class ProxyVodStreamForm(ProxyStreamForm, VodBaseStreamForm):
@@ -239,6 +247,9 @@ class ProxyVodStreamForm(ProxyStreamForm, VodBaseStreamForm):
         entry.description = self.description.data
         entry.trailer_url = self.trailer_url.data
         entry.user_score = self.user_score.data
+        entry.prime_date = self.prime_date.data
+        entry.country = self.country.data
+        entry.duration = self.duration.data
         entry.vod_type = self.vod_type.data
         return ProxyStreamForm.update_entry(self, entry)
 
@@ -252,6 +263,9 @@ class VodRelayStreamForm(RelayStreamForm, VodBaseStreamForm):
         entry.description = self.description.data
         entry.trailer_url = self.trailer_url.data
         entry.user_score = self.user_score.data
+        entry.prime_date = self.prime_date.data
+        entry.country = self.country.data
+        entry.duration = self.duration.data
         entry.vod_type = self.vod_type.data
         return RelayStreamForm.update_entry(self, entry)
 
@@ -265,5 +279,8 @@ class VodEncodeStreamForm(EncodeStreamForm, VodBaseStreamForm):
         entry.description = self.description.data
         entry.trailer_url = self.trailer_url.data
         entry.user_score = self.user_score.data
+        entry.prime_date = self.prime_date.data
+        entry.country = self.country.data
+        entry.duration = self.duration.data
         entry.vod_type = self.vod_type.data
         return EncodeStreamForm.update_entry(self, entry)
