@@ -43,6 +43,8 @@ class VodType(IntEnum):
         return str(self.value)
 
 
+MIN_COUNTRY_LENGTH = 2
+MAX_COUNTRY_LENGTH = 2048
 MIN_URL_LENGTH = 3
 MAX_URL_LENGTH = 2048
 MIN_PATH_LENGTH = 1
@@ -147,6 +149,7 @@ DEFAULT_TEST_URL = 'test'
 DEFAULT_STREAM_NAME = 'Stream'
 DEFAULT_STREAM_ICON_URL = 'https://fastocloud.com/static/images/unknown_channel.png'
 DEFAULT_STREAM_PREVIEW_ICON_URL = 'https://fastocloud.com/static/images/unknown_preview.png'
+INVALID_TRAILER_URL = 'https://fastocloud.com/static/video/invalid_trailer.m3u8'
 DEFAULT_STREAM_GROUP_TITLE = ''
 DEFAULT_STREAM_DESCRIPTION = ''
 DEFAULT_STREAM_TVG_NAME = ''

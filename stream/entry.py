@@ -740,9 +740,10 @@ class CodEncodeStream(EncodeStream):
 # VODS
 
 class VodBasedStream:
-    MAX_DATE = datetime(2100, 1, 1)
-    MIN_DATE = datetime(1900, 1, 1)
+    MAX_DATE = int(datetime(2100, 1, 1).timestamp() * 1000)
+    MIN_DATE = 0
     MAX_DURATION_MSEC = 3600 * 1000 * 365
+    DEFAULT_COUNTRY = 'Unknown'
     vod_type = IntField(default=constants.VodType.VODS, required=True)
     description = StringField(default=constants.DEFAULT_STREAM_DESCRIPTION,
                               min_length=constants.MIN_STREAM_DESCRIPTION_LENGTH,
@@ -750,12 +751,12 @@ class VodBasedStream:
                               required=True)
     preview_icon = StringField(default=constants.DEFAULT_STREAM_PREVIEW_ICON_URL, max_length=constants.MAX_URL_LENGTH,
                                min_length=constants.MIN_URL_LENGTH, required=True)
-    trailer_url = StringField(max_length=constants.MAX_URL_LENGTH,
-                              min_length=constants.MIN_URL_LENGTH, required=False)
-    user_score = FloatField(default=0.0, min_value=0, max_value=100, required=True)
-    prime_date = DateTimeField(min_value=MIN_DATE, max_value=MAX_DATE, required=False)
-    country = StringField(required=False)
-    duration = IntField(min_value=0, max_value=MAX_DURATION_MSEC, required=False)
+    trailer_url = StringField(default=constants.INVALID_TRAILER_URL, max_length=constants.MAX_URL_LENGTH,
+                              min_length=constants.MIN_URL_LENGTH, required=True)
+    user_score = FloatField(default=0, min_value=0, max_value=100, required=True)
+    prime_date = IntField(default=MIN_DATE, min_value=MIN_DATE, max_value=MAX_DATE, required=True)
+    country = StringField(default=DEFAULT_COUNTRY, required=True)
+    duration = IntField(default=0, min_value=0, max_value=MAX_DURATION_MSEC, required=True)
 
     def to_dict(self) -> dict:
         return {VodFields.DESCRIPTION_FIELD: self.description, VodFields.PREVIEW_ICON_FIELD: self.preview_icon,
@@ -848,6 +849,6 @@ def make_vod_info(stream, ctype: ChannelInfo.Type) -> VodInfo:
         urls.append(out.uri)
 
     vod = MovieInfo(stream.name, stream.description, stream.preview_icon, stream.trailer_url, stream.user_score,
-                    stream.prime_date.timestamp() * 1000, stream.country, stream.duration,
+                    stream.prime_date, stream.country, stream.duration,
                     stream.vod_type, urls)
     return VodInfo(stream.get_id(), ctype, stream.group, vod)
