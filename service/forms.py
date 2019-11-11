@@ -1,9 +1,9 @@
 from flask_wtf import FlaskForm
 from flask_babel import lazy_gettext
-from wtforms.fields import StringField, SubmitField, FileField, SelectField, FormField
+from wtforms.fields import StringField, SubmitField, MultipleFileField, SelectField, FormField
 from wtforms.validators import InputRequired, Length, Email
 
-from app.common.common_forms import HostAndPortForm, TagListField
+from app.common.common_forms import HostAndPortForm
 from app.common.service.entry import ServiceSettings, ProviderPair
 import app.common.constants as constants
 
@@ -68,7 +68,7 @@ class UploadM3uForm(FlaskForm):
                                          (constants.StreamType.COD_RELAY, 'Cod relay'),
                                          (constants.StreamType.COD_ENCODE, 'Cod encode')]
 
-    file = FileField()
+    files = MultipleFileField()
     type = SelectField(lazy_gettext(u'Type:'), coerce=constants.StreamType.coerce, validators=[InputRequired()],
                        choices=AVAILABLE_STREAM_TYPES_FOR_UPLOAD, default=constants.StreamType.RELAY)
     submit = SubmitField(lazy_gettext(u'Upload'))
