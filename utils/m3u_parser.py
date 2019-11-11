@@ -54,27 +54,28 @@ class M3uParser:
 
     # private
     def _manage_line(self, n):
-        line_info = self.lines[n]
-        line_link = self.lines[n + 1]
-        if line_info != "#EXTM3U":
-            m = re.search("tvg-name=\"(.*?)\"", line_info)
-            name = m.group(1) if m else 'Unknown'
-            m = re.search("tvg-id=\"(.*?)\"", line_info)
-            id = m.group(1) if m else 'Unknown'
-            m = re.search("tvg-logo=\"(.*?)\"", line_info)
-            logo = m.group(1) if m else 'Unknown'
-            m = re.search("group-title=\"(.*?)\"", line_info)
-            group = m.group(1) if m else 'Unknown'
-            m = re.search("[,](?!.*[,])(.*?)$", line_info)
-            title = m.group(1) if m else 'Unknown'
-            # ~ print(name+"||"+id+"||"+logo+"||"+group+"||"+title)
+        if n + 1 < len(self.lines):
+            line_info = self.lines[n]
+            line_link = self.lines[n + 1]
+            if line_info != "#EXTM3U":
+                m = re.search("tvg-name=\"(.*?)\"", line_info)
+                name = m.group(1) if m else 'Unknown'
+                m = re.search("tvg-id=\"(.*?)\"", line_info)
+                id = m.group(1) if m else 'Unknown'
+                m = re.search("tvg-logo=\"(.*?)\"", line_info)
+                logo = m.group(1) if m else 'Unknown'
+                m = re.search("group-title=\"(.*?)\"", line_info)
+                group = m.group(1) if m else 'Unknown'
+                m = re.search("[,](?!.*[,])(.*?)$", line_info)
+                title = m.group(1) if m else 'Unknown'
+                # ~ print(name+"||"+id+"||"+logo+"||"+group+"||"+title)
 
-            test = {
-                'title': title,
-                'tvg-name': name,
-                'tvg-id': id,
-                'tvg-logo': logo,
-                'tvg-group': group,
-                'link': line_link
-            }
-            self.files.append(test)
+                test = {
+                    'title': title,
+                    'tvg-name': name,
+                    'tvg-id': id,
+                    'tvg-logo': logo,
+                    'tvg-group': group,
+                    'link': line_link
+                }
+                self.files.append(test)
