@@ -7,7 +7,6 @@ from mongoengine import StringField, IntField, EmbeddedDocumentField, Document, 
 
 import app.common.constants as constants
 from app.common.common_entries import Rational, Size, Logo, InputUrls, InputUrl, OutputUrls, OutputUrl
-from app.common.stream.stream_data import ChannelInfo, VodInfo, EpgInfo, MovieInfo
 
 
 class ConfigFields:
@@ -831,24 +830,3 @@ class VodEncodeStream(EncodeStream, VodBasedStream):
         stream.input = InputUrls(urls=[InputUrl(id=InputUrl.generate_id())])
         stream.output = OutputUrls(urls=[OutputUrl(id=OutputUrl.generate_id())])
         return stream
-
-
-# NOT for VOD
-def make_channel_info(stream: IStream, ctype: ChannelInfo.Type) -> ChannelInfo:
-    urls = []
-    for out in stream.output.urls:
-        urls.append(out.uri)
-
-    epg = EpgInfo(stream.tvg_id, urls, stream.name, stream.tvg_logo, [])
-    return ChannelInfo(stream.get_id(), ctype, stream.group, epg)
-
-
-def make_vod_info(stream, ctype: ChannelInfo.Type) -> VodInfo:
-    urls = []
-    for out in stream.output.urls:
-        urls.append(out.uri)
-
-    vod = MovieInfo(stream.name, stream.description, stream.preview_icon, stream.trailer_url, stream.user_score,
-                    stream.prime_date, stream.country, stream.duration,
-                    stream.vod_type, urls)
-    return VodInfo(stream.get_id(), ctype, stream.group, vod)
