@@ -7,8 +7,7 @@ from mongoengine import Document, EmbeddedDocument, StringField, DateTimeField, 
     PULL, ObjectIdField, EmbeddedDocumentField
 
 from app.common.service.entry import ServiceSettings
-from app.common.stream.entry import IStream, make_channel_info, make_vod_info
-from app.common.stream.stream_data import BaseInfo
+from app.common.stream.entry import IStream
 import app.common.constants as constants
 
 
@@ -126,47 +125,9 @@ class Subscriber(Document):
         self.streams.append(stream)
         self.save()
 
-    def get_official_streams(self) -> (list, list):
-        streams = []
-        vods = []
-        for serv in self.servers:
-            for stream in self.streams:
-                founded_stream = serv.find_stream_settings_by_id(stream.id)
-                if founded_stream:
-                    stream_type = founded_stream.get_type()
-                    if stream_type == constants.StreamType.VOD_RELAY or stream_type == constants.StreamType.VOD_ENCODE or stream_type == constants.StreamType.VOD_PROXY:
-                        vod = make_vod_info(founded_stream, BaseInfo.Type.PUBLIC)
-                        vods.append(vod.to_dict())
-                    else:
-                        channel = make_channel_info(founded_stream, BaseInfo.Type.PUBLIC)
-                        streams.append(channel.to_dict())
-
-        return streams, vods
-
     def add_own_stream(self, stream: IStream):
         self.own_streams.append(stream)
         self.save()
-
-    def get_own_streams(self) -> (list, list):
-        own_streams = []
-        own_vods = []
-        for founded_stream in self.own_streams:
-            stream_type = founded_stream.get_type()
-            if stream_type == constants.StreamType.VOD_RELAY or stream_type == constants.StreamType.VOD_ENCODE or stream_type == constants.StreamType.VOD_PROXY:
-                vod = make_vod_info(founded_stream, BaseInfo.Type.PRIVATE)
-                own_vods.append(vod.to_dict())
-            else:
-                channel = make_channel_info(founded_stream, BaseInfo.Type.PRIVATE)
-                own_streams.append(channel.to_dict())
-        return own_streams, own_vods
-
-    def get_streams(self) -> (list, list):
-        streams, vods = self.get_official_streams()
-        own_streams, own_vods = self.get_own_streams()
-
-        streams.extend(own_streams)
-        vods.extend(own_vods)
-        return streams, vods
 
     def get_not_active_devices(self):
         devices = []
