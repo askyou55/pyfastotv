@@ -1,5 +1,6 @@
 import requests
 import json
+from urllib.parse import urlparse
 import ssl
 import os
 
@@ -9,7 +10,9 @@ from urllib.request import urlopen
 
 def download_file(url: str, path: str, timeout=1):
     get_response = requests.get(url, stream=True, timeout=timeout)
-    file_name = url.split('/')[-1]
+    parsed_url = urlparse(url)
+    path = parsed_url.path
+    file_name = path.split('/')[-1]
     full_path = os.path.join(path, file_name)
     with open(full_path, 'wb') as f:
         for chunk in get_response.iter_content(chunk_size=1024):
