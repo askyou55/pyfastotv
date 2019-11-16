@@ -71,7 +71,7 @@ class UploadM3uForm(FlaskForm):
     files = MultipleFileField()
     type = SelectField(lazy_gettext(u'Type:'), coerce=constants.StreamType.coerce, validators=[InputRequired()],
                        choices=AVAILABLE_STREAM_TYPES_FOR_UPLOAD, default=constants.StreamType.RELAY)
-    submit = SubmitField(lazy_gettext(u'Upload'))
+    upload = SubmitField(lazy_gettext(u'Upload'))
 
 
 class ServerProviderForm(FlaskForm):

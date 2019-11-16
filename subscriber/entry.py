@@ -129,6 +129,27 @@ class Subscriber(Document):
         self.own_streams.append(stream)
         self.save()
 
+    def remove_own_stream(self, sid: str):
+        for stream in self.own_streams:
+            if str(stream.id) == sid:
+                self.own_streams.remove(stream)
+                stream.delete()
+                break
+        self.save()
+
+    def find_own_stream(self, sid: str):
+        for stream in self.own_streams:
+            if str(stream.id) == sid:
+                return stream
+        return None
+
+    def remove_all_own_streams(self):
+        for stream in self.own_streams:
+            self.own_streams.remove(stream)
+            stream.delete()
+        self.own_streams = []
+        self.save()
+
     def get_not_active_devices(self):
         devices = []
         for dev in self.devices:
