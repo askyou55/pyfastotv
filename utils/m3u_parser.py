@@ -57,7 +57,7 @@ class M3uParser:
         if n + 1 < len(self.lines):
             line_info = self.lines[n]
             line_link = self.lines[n + 1]
-            if line_info != "#EXTM3U":
+            if not line_info.startswith("#EXTM3U"):
                 m = re.search("tvg-name=\"(.*?)\"", line_info)
                 name = m.group(1) if m else 'Unknown'
                 m = re.search("tvg-id=\"(.*?)\"", line_info)
