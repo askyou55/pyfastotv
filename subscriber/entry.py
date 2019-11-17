@@ -119,6 +119,9 @@ class Subscriber(Document):
         for stream in self.streams:
             result += stream.generate_device_playlist(sid, self.password, did, lb_server_host_and_port, False)
 
+        for own in self.own_streams:
+            result += own.generate_playlist(False)
+
         return result
 
     def add_official_stream(self, stream: IStream):
