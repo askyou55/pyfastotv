@@ -179,14 +179,10 @@ class IStream(Document):
     def generate_playlist(self, header=True) -> str:
         result = '#EXTM3U\n' if header else ''
         stream_type = self.get_type()
-        if stream_type == constants.StreamType.RELAY or \
-                stream_type == constants.StreamType.ENCODE or \
-                stream_type == constants.StreamType.TIMESHIFT_PLAYER or \
-                stream_type == constants.StreamType.VOD_ENCODE or \
-                stream_type == constants.StreamType.VOD_RELAY or \
-                stream_type == constants.StreamType.COD_ENCODE or \
-                stream_type == constants.StreamType.COD_RELAY or \
-                stream_type == constants.StreamType.PROXY:
+        if stream_type == constants.StreamType.RELAY or stream_type == constants.StreamType.VOD_RELAY or stream_type == constants.StreamType.COD_RELAY or \
+                stream_type == constants.StreamType.ENCODE or stream_type == constants.StreamType.VOD_ENCODE or stream_type == constants.StreamType.COD_ENCODE or \
+                stream_type == constants.StreamType.PROXY or stream_type == constants.StreamType.VOD_PROXY or stream_type == constants.StreamType.VOD_ENCODE or \
+                stream_type == constants.StreamType.TIMESHIFT_PLAYER or stream_type == constants.StreamType.CATCHUP:
             for out in self.output.urls:
                 result += '#EXTINF:-1 tvg-id="{0}" tvg-name="{1}" tvg-logo="{2}" group-title="{3}",{4}\n{5}\n'.format(
                     self.tvg_id,
@@ -202,15 +198,10 @@ class IStream(Document):
                                  header=True) -> str:
         result = '#EXTM3U\n' if header else ''
         stream_type = self.get_type()
-        if stream_type == constants.StreamType.PROXY or \
-                stream_type == constants.StreamType.VOD_PROXY or \
-                stream_type == constants.StreamType.RELAY or \
-                stream_type == constants.StreamType.ENCODE or \
-                stream_type == constants.StreamType.TIMESHIFT_PLAYER or \
-                stream_type == constants.StreamType.VOD_ENCODE or \
-                stream_type == constants.StreamType.VOD_RELAY or \
-                stream_type == constants.StreamType.COD_ENCODE or \
-                stream_type == constants.StreamType.COD_RELAY:
+        if stream_type == constants.StreamType.RELAY or stream_type == constants.StreamType.VOD_RELAY or stream_type == constants.StreamType.COD_RELAY or \
+                stream_type == constants.StreamType.ENCODE or stream_type == constants.StreamType.VOD_ENCODE or stream_type == constants.StreamType.COD_ENCODE or \
+                stream_type == constants.StreamType.PROXY or stream_type == constants.StreamType.VOD_PROXY or stream_type == constants.StreamType.VOD_ENCODE or \
+                stream_type == constants.StreamType.TIMESHIFT_PLAYER or stream_type == constants.StreamType.CATCHUP:
             for out in self.output.urls:
                 parsed_uri = urlparse(out.uri)
                 if parsed_uri.scheme == 'http' or parsed_uri.scheme == 'https':
