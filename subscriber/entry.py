@@ -161,6 +161,11 @@ class Subscriber(Document):
 
         return devices
 
+    def delete(self, *args, **kwargs):
+        for stream in self.own_streams:
+            stream.delete()
+        return super(Subscriber, self).delete(*args, **kwargs)
+
     @staticmethod
     def make_md5_hash_from_password(password: str) -> str:
         m = md5()
