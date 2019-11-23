@@ -14,6 +14,7 @@ class StreamType(IntEnum):
     VOD_ENCODE = 9
     COD_RELAY = 10
     COD_ENCODE = 11
+    EVENT = 12
 
     @classmethod
     def choices(cls):

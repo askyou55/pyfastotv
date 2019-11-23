@@ -7,7 +7,7 @@ from wtforms.fields import StringField, SubmitField, SelectField, IntegerField, 
 import app.common.constants as constants
 from app.common.stream.entry import IStream, HardwareStream, ProxyStream, RelayStream, EncodeStream, \
     TimeshiftRecorderStream, CatchupStream, TimeshiftPlayerStream, TestLifeStream, VodRelayStream, VodEncodeStream, \
-    ProxyVodStream, CodRelayStream, CodEncodeStream, StreamLogLevel, VodBasedStream
+    ProxyVodStream, CodRelayStream, CodEncodeStream, StreamLogLevel, VodBasedStream, EventStream
 from app.common.common_forms import InputUrlsForm, OutputUrlsForm, SizeForm, LogoForm, RationalForm
 
 
@@ -284,3 +284,15 @@ class VodEncodeStreamForm(EncodeStreamForm, VodBaseStreamForm):
         entry.duration = self.duration.data
         entry.vod_type = self.vod_type.data
         return EncodeStreamForm.update_entry(self, entry)
+
+
+class EventStreamForm(VodEncodeStreamForm):
+    def __init__(self, *args, **kwargs):
+        super(EventStreamForm, self).__init__(*args, **kwargs)
+        self.vod_type.validators = []
+
+    def make_entry(self):
+        return self.update_entry(EventStream())
+
+    def update_entry(self, entry: EventStream):
+        return VodEncodeStreamForm.update_entry(self, entry)

@@ -821,3 +821,16 @@ class VodEncodeStream(EncodeStream, VodBasedStream):
         stream.input = InputUrls(urls=[InputUrl(id=InputUrl.generate_id())])
         stream.output = OutputUrls(urls=[OutputUrl(id=OutputUrl.generate_id())])
         return stream
+
+
+class EventStream(VodEncodeStream):
+    def get_type(self):
+        return constants.StreamType.EVENT
+
+    @classmethod
+    def make_stream(cls, settings):
+        stream = cls()
+        stream._settings = settings
+        stream.input = InputUrls(urls=[InputUrl(id=InputUrl.generate_id())])
+        stream.output = OutputUrls(urls=[OutputUrl(id=OutputUrl.generate_id())])
+        return stream

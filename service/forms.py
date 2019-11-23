@@ -66,7 +66,8 @@ class UploadM3uForm(FlaskForm):
                                          (constants.StreamType.VOD_RELAY, 'Vod relay'),
                                          (constants.StreamType.VOD_ENCODE, 'Vod encode'),
                                          (constants.StreamType.COD_RELAY, 'Cod relay'),
-                                         (constants.StreamType.COD_ENCODE, 'Cod encode')]
+                                         (constants.StreamType.COD_ENCODE, 'Cod encode'),
+                                         (constants.StreamType.EVENT, 'Event')]
 
     files = MultipleFileField()
     type = SelectField(lazy_gettext(u'Type:'), coerce=constants.StreamType.coerce, validators=[InputRequired()],
