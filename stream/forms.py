@@ -2,7 +2,8 @@ from flask_wtf import FlaskForm
 from flask_babel import lazy_gettext
 
 from wtforms.validators import InputRequired, Length, NumberRange
-from wtforms.fields import StringField, SubmitField, SelectField, IntegerField, FormField, BooleanField, FloatField
+from wtforms.fields import StringField, SubmitField, SelectField, IntegerField, FormField, BooleanField, FloatField, \
+    DateTimeField
 
 import app.common.constants as constants
 from app.common.stream.entry import IStream, HardwareStream, ProxyStream, RelayStream, EncodeStream, \
@@ -228,9 +229,8 @@ class VodBaseStreamForm:
                               validators=[InputRequired(),
                                           Length(min=constants.MIN_URL_LENGTH, max=constants.MAX_URL_LENGTH)])
     user_score = FloatField(lazy_gettext(u'User score:'), validators=[InputRequired(), NumberRange(min=0, max=100)])
-    prime_date = IntegerField(lazy_gettext(u'Prime time (epoch UTC):'),
-                              validators=[InputRequired(),
-                                          NumberRange(min=VodBasedStream.MIN_DATE, max=VodBasedStream.MAX_DATE)])
+    prime_date = DateTimeField(lazy_gettext(u'Prime time:'), validators=[InputRequired()],
+                               default=VodBasedStream.MIN_DATE)
     country = StringField(lazy_gettext(u'Country:'),
                           validators=[InputRequired(),
                                       Length(min=constants.MIN_COUNTRY_LENGTH, max=constants.MAX_COUNTRY_LENGTH)])

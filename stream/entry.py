@@ -729,9 +729,10 @@ class CodEncodeStream(EncodeStream):
 
 # VODS
 
+
 class VodBasedStream:
-    MAX_DATE = int(datetime(2100, 1, 1).timestamp() * 1000)
-    MIN_DATE = 0
+    MAX_DATE = datetime(2100, 1, 1)
+    MIN_DATE = datetime(1970, 1, 1)
     MAX_DURATION_MSEC = 3600 * 1000 * 365
     DEFAULT_COUNTRY = 'Unknown'
     vod_type = IntField(default=constants.VodType.VODS, required=True)
@@ -744,7 +745,7 @@ class VodBasedStream:
     trailer_url = StringField(default=constants.INVALID_TRAILER_URL, max_length=constants.MAX_URL_LENGTH,
                               min_length=constants.MIN_URL_LENGTH, required=True)
     user_score = FloatField(default=0, min_value=0, max_value=100, required=True)
-    prime_date = IntField(default=MIN_DATE, min_value=MIN_DATE, max_value=MAX_DATE, required=True)
+    prime_date = DateTimeField(default=MIN_DATE, min_value=MIN_DATE, max_value=MAX_DATE, required=True)
     country = StringField(default=DEFAULT_COUNTRY, required=True)
     duration = IntField(default=0, min_value=0, max_value=MAX_DURATION_MSEC, required=True)
 
